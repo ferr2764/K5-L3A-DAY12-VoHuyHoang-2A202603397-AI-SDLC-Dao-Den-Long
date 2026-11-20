@@ -6,7 +6,7 @@
 - Hòn đảo có đúng 5 đèn Lồng Lớn và đèn cần 3 đom đóm để thắp.
 - Túi của Mây chứa tối đa 5 đom đóm.
 - Mây bắt đầu với 3 flame.
-- Đom đóm được nhặt tự động khi khoảng cách XZ không vượt `pickup_radius`.
+- Đom đóm được nhặt tự động khi khoảng cách XZ không vượt `pickup_radius` (2 mét ở Contract 1.2).
 - Gửi đom đóm bằng hành động `interact` khi trong `interact_radius` của đèn.
 - `pulse` là hành động kích hoạt khi nút chuyển false → true, tốn 1 flame và có thời gian hồi 4 giây.
 - Va chạm với Bóng Mực mất 1 flame, làm rơi tối đa một đom đóm và kích hoạt miễn nhiễm 1.5 giây.

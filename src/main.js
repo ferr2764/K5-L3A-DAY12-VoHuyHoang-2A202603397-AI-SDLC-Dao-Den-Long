@@ -353,23 +353,84 @@ rebuildEnvironment();
 
 function lanternMesh(lantern) {
   const group = new THREE.Group();
+  const wood = new THREE.MeshStandardMaterial({ color: 0x6b4a2f, roughness: 0.78 });
+  const darkWood = new THREE.MeshStandardMaterial({ color: 0x3f2b1d, roughness: 0.82 });
+  const metal = new THREE.MeshStandardMaterial({ color: 0x8d744d, roughness: 0.48, metalness: 0.3 });
+  const paper = new THREE.MeshStandardMaterial({
+    color: 0x5b5f6e,
+    emissive: 0x000000,
+    roughness: 0.9,
+    side: THREE.DoubleSide,
+  });
+
   const column = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.14, 0.18, 2.2, 10),
-    new THREE.MeshStandardMaterial({ color: 0x4b3525 }),
+    new THREE.CylinderGeometry(0.16, 0.24, 2.25, 12),
+    wood,
   );
   column.position.y = 1.1;
   column.castShadow = true;
   group.add(column);
+  const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.16, 12), darkWood);
+  foot.position.y = 0.08;
+  foot.castShadow = true;
+  group.add(foot);
+  const baseRing = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.045, 6, 18), metal);
+  baseRing.position.y = 0.38;
+  baseRing.rotation.x = Math.PI / 2;
+  group.add(baseRing);
+
+  const topRing = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.05, 8, 18), metal);
+  topRing.position.y = 2.78;
+  topRing.rotation.x = Math.PI / 2;
+  topRing.castShadow = true;
+  group.add(topRing);
+  const roof = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.72, 0.38, 8), darkWood);
+  roof.position.y = 3.08;
+  roof.castShadow = true;
+  group.add(roof);
+  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), metal);
+  finial.position.y = 3.38;
+  finial.castShadow = true;
+  group.add(finial);
+
+  const lampGroup = new THREE.Group();
+  lampGroup.position.y = 2.35;
   const lamp = new THREE.Mesh(
-    new THREE.SphereGeometry(0.55, 16, 12),
-    new THREE.MeshStandardMaterial({ color: 0x3d3156, emissive: 0x000000 }),
+    new THREE.CylinderGeometry(0.46, 0.38, 0.86, 12),
+    paper,
   );
-  lamp.position.y = 2.45;
-  lamp.userData.lanternId = lantern.id;
   lamp.castShadow = true;
-  group.add(lamp);
+  lamp.userData.lanternId = lantern.id;
+  lampGroup.add(lamp);
+  for (const side of [-1, 1]) {
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.95, 0.045), metal);
+    frame.position.set(side * 0.42, 0, 0);
+    frame.castShadow = true;
+    lampGroup.add(frame);
+  }
+  for (const angle of [0, Math.PI / 2]) {
+    const sideFrame = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.95, 0.045), metal);
+    sideFrame.position.set(
+      angle === 0 ? 0 : 0.42,
+      0,
+      0,
+    );
+    sideFrame.rotation.y = angle;
+    lampGroup.add(sideFrame);
+  }
+  const core = new THREE.Mesh(
+    new THREE.SphereGeometry(0.16, 12, 8),
+    new THREE.MeshStandardMaterial({
+      color: 0xffe9b0,
+      emissive: 0xffb347,
+      emissiveIntensity: 0,
+    }),
+  );
+  lampGroup.add(core);
+  group.add(lampGroup);
+
   const halo = new THREE.Mesh(
-    new THREE.SphereGeometry(0.9, 18, 12),
+    new THREE.SphereGeometry(0.95, 18, 12),
     new THREE.MeshBasicMaterial({
       color: 0xffe58a,
       transparent: true,
@@ -377,26 +438,27 @@ function lanternMesh(lantern) {
       depthWrite: false,
     }),
   );
-  halo.position.y = 2.45;
+  halo.position.y = 2.35;
   group.add(halo);
-  const light = new THREE.PointLight(0xffb347, 0, 16);
-  light.position.y = 2.45;
+  const light = new THREE.PointLight(0xffb347, 0, 18);
+  light.position.y = 2.35;
   group.add(light);
+
   const fuelTrack = new THREE.Mesh(
-    new THREE.BoxGeometry(0.9, 0.08, 0.06),
-    new THREE.MeshBasicMaterial({ color: 0x5b5f6e }),
+    new THREE.BoxGeometry(0.98, 0.07, 0.06),
+    new THREE.MeshBasicMaterial({ color: 0x1b2350 }),
   );
-  fuelTrack.position.set(0, 3.15, 0);
+  fuelTrack.position.set(0, 3.56, 0);
   group.add(fuelTrack);
   const fuelBar = new THREE.Mesh(
-    new THREE.BoxGeometry(0.84, 0.055, 0.065),
+    new THREE.BoxGeometry(0.92, 0.048, 0.065),
     new THREE.MeshBasicMaterial({ color: 0xffb347 }),
   );
-  fuelBar.position.set(0, 3.15, 0.01);
+  fuelBar.position.set(0, 3.56, 0.01);
   group.add(fuelBar);
   group.position.set(lantern.pos[0], 0, lantern.pos[2]);
   scene.add(group);
-  return { group, lamp, halo, light, fuelTrack, fuelBar };
+  return { group, lamp, core, halo, light, fuelTrack, fuelBar };
 }
 
 let lanternObjects = new Map();
@@ -421,12 +483,14 @@ function syncObjects() {
     if (!object) continue;
     object.group.position.set(lantern.pos[0], 0, lantern.pos[2]);
     const progress = Math.min(1, lantern.fuel / TUNING.fuel_max);
-    object.lamp.material.color.set(lantern.lit ? 0xffb347 : 0x5b5f6e);
-    object.lamp.material.emissive.setHex(lantern.lit ? 0xffb347 : 0x000000);
-    object.lamp.material.emissiveIntensity = lantern.lit ? 3 : progress * 0.5;
-    object.halo.material.opacity = lantern.lit ? (lantern.fuel < 30 ? 0.22 : 0.35) : 0;
-    object.halo.scale.setScalar(lantern.lit ? 1.35 : 1);
-    object.light.intensity = lantern.lit ? 18 : progress * 1.2;
+    object.lamp.material.color.set(lantern.lit ? 0xffd98a : 0x5b5f6e);
+    object.lamp.material.emissive.setHex(lantern.lit ? 0xff7b24 : 0x000000);
+    object.lamp.material.emissiveIntensity = lantern.lit ? 1.8 : progress * 0.25;
+    object.core.material.emissiveIntensity = lantern.lit ? 4 : 0;
+    object.core.material.color.set(lantern.lit ? 0xfff2b6 : 0x777777);
+    object.halo.material.opacity = lantern.lit ? (lantern.fuel < 30 ? 0.28 : 0.48) : 0;
+    object.halo.scale.setScalar(lantern.lit ? 1.45 : 1);
+    object.light.intensity = lantern.lit ? 24 : progress * 1.2;
     const litScale = lantern.lit ? 1 : 0.8;
     object.group.scale.set(litScale, litScale, litScale);
     const fuelRatio = lantern.lit ? Math.max(0, lantern.fuel / TUNING.fuel_max) : 0;
@@ -448,13 +512,31 @@ function syncObjects() {
   }
   for (const mote of game.motes) {
     if (!moteObjects.has(mote.id)) {
-      const mesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.12, 10, 8),
-        new THREE.MeshBasicMaterial({ color: 0xffdf78 }),
+      const moteGroup = new THREE.Group();
+      const glow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.28, 12, 8),
+        new THREE.MeshBasicMaterial({
+          color: 0xffe58a,
+          transparent: true,
+          opacity: 0.18,
+          depthWrite: false,
+        }),
       );
-      mesh.position.set(mote.pos[0], 0.6, mote.pos[2]);
-      scene.add(mesh);
-      moteObjects.set(mote.id, mesh);
+      moteGroup.add(glow);
+      for (let i = 0; i < 3; i++) {
+        const angle = i * Math.PI * 2 / 3;
+        const spark = new THREE.Mesh(
+          new THREE.SphereGeometry(i === 0 ? 0.12 : 0.075, 10, 8),
+          new THREE.MeshBasicMaterial({ color: i === 0 ? 0xfff6c2 : 0xffdf78 }),
+        );
+        spark.position.set(Math.cos(angle) * 0.12, i * 0.05, Math.sin(angle) * 0.12);
+        moteGroup.add(spark);
+      }
+      const moteLight = new THREE.PointLight(0xffd98a, 1.1, 3);
+      moteGroup.add(moteLight);
+      moteGroup.position.set(mote.pos[0], 0.75, mote.pos[2]);
+      scene.add(moteGroup);
+      moteObjects.set(mote.id, moteGroup);
     }
   }
 

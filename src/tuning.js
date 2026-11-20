@@ -11,7 +11,7 @@ export const TUNING = {
   low_fuel_threshold: 30,
   capacity_max: 20,
   lantern_count_night1: 5,
-  pickup_radius: 1.0,
+  pickup_radius: 2.0,
   interact_radius: 2.0,
   pulse_cost: 3,
   pulse_radius: 5.0,

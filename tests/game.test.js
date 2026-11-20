@@ -48,6 +48,19 @@ test("picks an active mote within pickup radius", () => {
   assert.equal(game.score, 0);
 });
 
+test("mote pickup radius is 2 metres", () => {
+  const game = new Game({
+    scenario: {
+      random_motes: false,
+      random_shades: false,
+      motes: [[0, 0, 2]],
+      shades: [],
+    },
+  });
+  game.applyInput({});
+  assert.equal(game.player.carried, 1);
+});
+
 test("pulse rises to stun and pushes nearby shades", () => {
   const game = new Game({
     scenario: {
