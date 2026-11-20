@@ -260,3 +260,34 @@ body.colorblind #hud #time.danger::before {
   gap: 6px;
   text-align: left;
 }
+
+#night-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 4px 0;
+}
+
+.night-option {
+  min-width: 150px;
+  min-height: 82px;
+  display: grid;
+  gap: 5px;
+  place-content: center;
+  border: 1px solid #8fa3b8;
+  border-radius: 12px;
+  background: rgba(27, 35, 80, 0.94);
+  color: #f5f1e6;
+  cursor: pointer;
+}
+
+.night-option span {
+  color: #d7def8;
+  font-size: 13px;
+}
+
+.night-option.active {
+  border: 2px solid #f2c14e;
+  background: #44518a;
+  box-shadow: 0 0 18px rgba(242, 193, 78, 0.38);
+}

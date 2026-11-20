@@ -570,6 +570,13 @@ function playTone(frequency = 440, duration = 0.08) {
 document.querySelector("#open-settings").addEventListener("click", () => {
   document.querySelector("#settings-menu").hidden = false;
 });
+
+for (const option of document.querySelectorAll(".night-option")) {
+  option.addEventListener("click", () => {
+    document.querySelectorAll(".night-option").forEach((item) => item.classList.remove("active"));
+    option.classList.add("active");
+  });
+}
 document.querySelector("#close-settings").addEventListener("click", () => {
   masterVolume = Number(document.querySelector("#volume").value) / 100;
   const sensitivity = Number(document.querySelector("#sensitivity").value);
@@ -585,8 +592,9 @@ document.querySelector("#close-settings").addEventListener("click", () => {
 });
 document.querySelector("#start-game").addEventListener("click", () => {
   gameStarted = true;
-  currentNight = 1;
-  game = new Game({ night: 1 });
+  const selected = document.querySelector(".night-option.active");
+  currentNight = Number(selected?.dataset.night ?? 1);
+  game = new Game({ night: currentNight });
   rebuildObjects();
   rebuildEnvironment();
   document.querySelector("#main-menu").hidden = true;

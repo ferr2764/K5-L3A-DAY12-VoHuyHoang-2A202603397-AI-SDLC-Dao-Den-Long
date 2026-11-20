@@ -48,7 +48,18 @@
     <div id="main-menu" class="menu-screen">
       <h1>Đảo Đèn Lồng</h1>
       <p>Bản đồ 3 Đêm</p>
-      <button id="start-game">Bắt đầu</button>
+      <div id="night-selector" aria-label="Chọn bản đồ">
+        <button class="night-option active" type="button" data-night="1">
+          <strong>Đêm 1</strong><span>Đảo Bến</span>
+        </button>
+        <button class="night-option" type="button" data-night="2">
+          <strong>Đêm 2</strong><span>Đảo Cau</span>
+        </button>
+        <button class="night-option" type="button" data-night="3">
+          <strong>Đêm 3</strong><span>Đảo Chuông</span>
+        </button>
+      </div>
+      <button id="start-game">Chơi bản đồ đã chọn</button>
       <button id="open-settings">Cài đặt</button>
     </div>
     <div id="settings-menu" class="menu-screen" hidden>
