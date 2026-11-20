@@ -75,6 +75,13 @@ html, body {
 #lantern-hint {
   color: #ffe9b0;
   font-size: 12px;
+  min-height: 18px;
+  line-height: 1.35;
+}
+
+#lantern-hint.ready {
+  color: #fff6c2;
+  text-shadow: 0 0 8px #ffb347;
 }
 
 @keyframes blink { 50% { opacity: 0.35; } }

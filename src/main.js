@@ -293,17 +293,38 @@ function hud() {
       ? `Tỏa sáng: ${(game.player.pulseCdTicks / 60).toFixed(1)}s`
       : "Tỏa sáng sẵn sàng";
 
-  const nearest = game.lanterns
+  const unlit = game.lanterns
     .filter((lantern) => !lantern.lit)
-    .filter((lantern) => Math.hypot(
-      game.player.pos[0] - lantern.pos[0],
-      game.player.pos[2] - lantern.pos[2],
-    ) <= TUNING.interact_radius)
-    .sort((a, b) => a.id.localeCompare(b.id))[0];
+    .sort((a, b) =>
+      Math.hypot(game.player.pos[0] - a.pos[0], game.player.pos[2] - a.pos[2]) -
+      Math.hypot(game.player.pos[0] - b.pos[0], game.player.pos[2] - b.pos[2])
+      || a.id.localeCompare(b.id),
+    );
+  const nearest = unlit[0];
   const hint = document.querySelector("#lantern-hint");
   hint.hidden = !nearest;
   if (nearest) {
-    hint.textContent = `E — Nạp ánh sáng (${nearest.deposited}/${TUNING.lantern_cost})`;
+    const distance = Math.hypot(
+      game.player.pos[0] - nearest.pos[0],
+      game.player.pos[2] - nearest.pos[2],
+    );
+    hint.classList.toggle("ready", distance <= TUNING.interact_radius);
+    if (distance <= TUNING.interact_radius) {
+      if (game.player.carried > 0) {
+        hint.textContent =
+          `Bấm E / chuột phải — ${nearest.id}: ${nearest.deposited}/${TUNING.lantern_cost}`;
+      } else {
+        hint.textContent =
+          `Cần thêm đom đóm — ${nearest.id}: ${nearest.deposited}/${TUNING.lantern_cost}`;
+      }
+    } else {
+      hint.textContent =
+        `Đèn gần nhất ${nearest.id}: ${nearest.deposited}/${TUNING.lantern_cost} · ${distance.toFixed(1)} m`;
+    }
+  } else {
+    hint.textContent = "Tất cả đèn đã sáng";
+    hint.hidden = false;
+    hint.classList.add("ready");
   }
 }
 

@@ -12,6 +12,8 @@
 - Contract `1.1` được test so khớp trực tiếp với tuning engine.
 - Menu chính, cài đặt và HUD đã được build trong giao diện browser.
 - Cài đặt âm lượng và độ nhạy chuột được lưu bằng `localStorage`.
+- HUD luôn hiển thị đèn chưa sáng gần nhất, khoảng cách, tiến độ `x/10` và hướng bấm tương tác.
+- Test nạp nhiều lần kiểm tra đèn chỉ sáng khi tiến độ đạt đúng 10 đom đóm.
 
 ## Câu lệnh kiểm chứng
 
