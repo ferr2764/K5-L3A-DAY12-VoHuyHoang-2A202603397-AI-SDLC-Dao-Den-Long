@@ -218,3 +218,22 @@ test("win on all lit even when final check happens at zero time", () => {
   assert.equal(game.state, "won");
   assert.equal(game.endReason, "all_lit");
 });
+
+test("lantern needs multiple deposits and lights at exactly 10 motes", () => {
+  const game = new Game({
+    scenario: {
+      random_motes: false,
+      random_shades: false,
+      player: { pos: [0, 0, 25], carried: 4, flames: 3 },
+      lanterns: [{ id: "L1", pos: [0, 0, 25] }],
+    },
+  });
+  game.applyInput({ interact: true });
+  assert.equal(game.lanterns[0].lit, false);
+  assert.equal(game.lanterns[0].deposited, 4);
+  game.player.carried = 6;
+  game.applyInput({ interact: false });
+  game.applyInput({ interact: true });
+  assert.equal(game.lanterns[0].lit, true);
+  assert.equal(game.lanterns[0].deposited, 10);
+});

@@ -25,7 +25,7 @@ scene.add(ambient);
 let currentNight = 1;
 let game = new Game({ night: currentNight });
 const island = new THREE.Mesh(
-  new THREE.CylinderGeometry(22, 24, 1.2, 48),
+  new THREE.CylinderGeometry(40, 42, 1.2, 64),
   new THREE.MeshStandardMaterial({ color: 0x29413b, roughness: 0.95 }),
 );
 island.position.y = -0.6;
@@ -33,7 +33,7 @@ island.receiveShadow = true;
 scene.add(island);
 
 const islandTop = new THREE.Mesh(
-  new THREE.CylinderGeometry(21.7, 21.7, 0.12, 48),
+  new THREE.CylinderGeometry(39.7, 39.7, 0.12, 64),
   new THREE.MeshStandardMaterial({ color: 0x4e6b55, roughness: 1 }),
 );
 islandTop.position.y = 0.02;
