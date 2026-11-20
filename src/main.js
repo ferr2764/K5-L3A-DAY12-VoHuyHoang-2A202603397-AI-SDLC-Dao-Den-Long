@@ -370,9 +370,21 @@ function lanternMesh(lantern) {
   const light = new THREE.PointLight(0xffb347, 0, 16);
   light.position.y = 2.45;
   group.add(light);
+  const fuelTrack = new THREE.Mesh(
+    new THREE.BoxGeometry(0.9, 0.08, 0.06),
+    new THREE.MeshBasicMaterial({ color: 0x5b5f6e }),
+  );
+  fuelTrack.position.set(0, 3.15, 0);
+  group.add(fuelTrack);
+  const fuelBar = new THREE.Mesh(
+    new THREE.BoxGeometry(0.84, 0.055, 0.065),
+    new THREE.MeshBasicMaterial({ color: 0xffb347 }),
+  );
+  fuelBar.position.set(0, 3.15, 0.01);
+  group.add(fuelBar);
   group.position.set(lantern.pos[0], 0, lantern.pos[2]);
   scene.add(group);
-  return { group, lamp, halo, light };
+  return { group, lamp, halo, light, fuelTrack, fuelBar };
 }
 
 let lanternObjects = new Map();
@@ -396,13 +408,24 @@ function syncObjects() {
     const object = lanternObjects.get(lantern.id);
     if (!object) continue;
     object.group.position.set(lantern.pos[0], 0, lantern.pos[2]);
-    const progress = Math.min(1, lantern.deposited / TUNING.lantern_cost);
+    const progress = Math.min(1, lantern.fuel / TUNING.fuel_max);
     object.lamp.material.color.set(lantern.lit ? 0xffb347 : 0x5b5f6e);
     object.lamp.material.emissive.setHex(lantern.lit ? 0xffb347 : 0x000000);
     object.lamp.material.emissiveIntensity = lantern.lit ? 3 : progress * 0.5;
-    object.halo.material.opacity = lantern.lit ? 0.35 : 0;
+    object.halo.material.opacity = lantern.lit ? (lantern.fuel < 30 ? 0.22 : 0.35) : 0;
     object.halo.scale.setScalar(lantern.lit ? 1.35 : 1);
     object.light.intensity = lantern.lit ? 18 : progress * 1.2;
+    const litScale = lantern.lit ? 1 : 0.8;
+    object.group.scale.set(litScale, litScale, litScale);
+    const fuelRatio = lantern.lit ? Math.max(0, lantern.fuel / TUNING.fuel_max) : 0;
+    object.fuelBar.scale.x = fuelRatio;
+    object.fuelBar.position.x = -(1 - fuelRatio) * 0.42;
+    object.fuelTrack.visible = lantern.lit;
+    object.fuelBar.visible = lantern.lit;
+    if (lantern.lit && lantern.fuel < TUNING.low_fuel_threshold) {
+      const blink = Math.sin(performance.now() * 0.006) > 0;
+      object.lamp.material.emissiveIntensity = blink ? 3.5 : 0.8;
+    }
   }
 
   for (const [id, object] of moteObjects) {
@@ -505,6 +528,9 @@ let gameStarted = false;
 const savedSettings = JSON.parse(localStorage.getItem("dao-den-long-settings") ?? '{"volume":50,"sensitivity":18}');
 let mouseSensitivity = (savedSettings.sensitivity ?? 18) / 100;
 let masterVolume = (savedSettings.volume ?? 50) / 100;
+let colorblindMode = localStorage.getItem("dao-den-long-colorblind") === "true";
+document.querySelector("#colorblind-mode").checked = colorblindMode;
+document.body.classList.toggle("colorblind", colorblindMode);
 
 document.querySelector("#volume").value = Math.round(masterVolume * 100);
 document.querySelector("#sensitivity").value = Math.round(savedSettings.sensitivity ?? 18);
@@ -529,6 +555,9 @@ document.querySelector("#close-settings").addEventListener("click", () => {
   masterVolume = Number(document.querySelector("#volume").value) / 100;
   const sensitivity = Number(document.querySelector("#sensitivity").value);
   mouseSensitivity = sensitivity / 100;
+  colorblindMode = document.querySelector("#colorblind-mode").checked;
+  localStorage.setItem("dao-den-long-colorblind", String(colorblindMode));
+  document.body.classList.toggle("colorblind", colorblindMode);
   localStorage.setItem("dao-den-long-settings", JSON.stringify({
     volume: Math.round(masterVolume * 100),
     sensitivity,
@@ -626,7 +655,9 @@ function hud() {
 
   const bar = document.querySelector("#mote-bar");
   bar.innerHTML = "";
-  for (let i = 0; i < TUNING.carry_capacity; i++) {
+  bar.setAttribute("title", `${game.player.carried}/${game.player.capacity} đom đóm`);
+  bar.setAttribute("aria-label", `${game.player.carried}/${game.player.capacity} đom đóm`);
+  for (let i = 0; i < game.player.capacity; i++) {
     const slot = document.createElement("span");
     slot.className = `mote-slot${i < game.player.carried ? " filled" : ""}`;
     bar.appendChild(slot);
@@ -641,7 +672,7 @@ function hud() {
       : "Tỏa sáng sẵn sàng";
 
   const unlit = game.lanterns
-    .filter((lantern) => !lantern.lit)
+    .filter((lantern) => !lantern.lit || lantern.fuel < TUNING.fuel_max)
     .sort((a, b) =>
       Math.hypot(game.player.pos[0] - a.pos[0], game.player.pos[2] - a.pos[2]) -
       Math.hypot(game.player.pos[0] - b.pos[0], game.player.pos[2] - b.pos[2])
@@ -659,17 +690,21 @@ function hud() {
     if (distance <= TUNING.interact_radius) {
       if (game.player.carried > 0) {
         hint.textContent =
-          `Bấm E / chuột phải — ${nearest.id}: ${nearest.deposited}/${TUNING.lantern_cost}`;
+          nearest.lit
+            ? `Châm dầu ${nearest.id}: ${nearest.fuel.toFixed(1)} / 100`
+            : `Thắp lại ${nearest.id}: 5 đom`;
       } else {
         hint.textContent =
           `Cần thêm đom đóm — ${nearest.id}: ${nearest.deposited}/${TUNING.lantern_cost}`;
       }
     } else {
       hint.textContent =
-        `Đèn gần nhất ${nearest.id}: ${nearest.deposited}/${TUNING.lantern_cost} · ${distance.toFixed(1)} m`;
+        nearest.lit
+          ? `Đèn ${nearest.id}: ${nearest.fuel.toFixed(1)} dầu · ${distance.toFixed(1)} m`
+          : `Đèn gần nhất ${nearest.id}: tắt · ${distance.toFixed(1)} m`;
     }
   } else {
-    hint.textContent = "Tất cả đèn đã sáng";
+    hint.textContent = "Tất cả đèn đã đầy dầu";
     hint.hidden = false;
     hint.classList.add("ready");
   }

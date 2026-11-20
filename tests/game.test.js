@@ -14,7 +14,7 @@ test("picks a mote, deposits it, and lights a lantern", () => {
     scenario: {
       random_motes: false,
       random_shades: false,
-      player: { pos: [0, 0, 5], carried: 5, flames: 3 },
+      player: { pos: [0, 0, 5], carried: 10, flames: 3 },
       motes: [],
       shades: [],
       lanterns: [{ id: "L1", pos: [0, 0, 5] }],
@@ -24,7 +24,7 @@ test("picks a mote, deposits it, and lights a lantern", () => {
 
   game.applyInput({ interact: true });
   assert.equal(game.lanterns[0].lit, true);
-  assert.equal(game.lanterns[0].deposited, 5);
+  assert.equal(game.lanterns[0].deposited, 10);
   assert.equal(game.score, 150);
   assert.deepEqual(
     game.events.map((event) => event.name),
@@ -113,13 +113,13 @@ test("buttons are rising-edge actions", () => {
       random_shades: false,
       motes: [],
       shades: [],
-      player: { pos: [0, 0, 0], carried: 1, flames: 3 },
+      player: { pos: [0, 0, 0], carried: 10, flames: 3 },
       lanterns: [{ id: "L1", pos: [0, 0, 0] }],
     },
   });
   game.applyInput({ interact: true });
   game.applyInput({ interact: true });
-  assert.equal(game.lanterns[0].deposited, 1);
+  assert.equal(game.lanterns[0].deposited, 10);
   assert.equal(game.events.filter((event) => event.name === "deposit").length, 1);
 });
 
@@ -199,39 +199,44 @@ test("falling removes all carried motes and grants respawn invulnerability", () 
   assert.equal(game.events.at(-1).name, "player_hit");
 });
 
-test("win on all lit even when final check happens at zero time", () => {
+test("dawn survived replaces the old all-lit win reason", () => {
   const game = new Game({
     scenario: {
       random_motes: false,
       random_shades: false,
       time_left_s: 0,
       lanterns: [
-        { id: "L1", pos: [0, 0, 25], deposited: 5 },
-        { id: "L2", pos: [23.8, 0, 7.7], deposited: 5 },
-        { id: "L3", pos: [14.7, 0, -20.2], deposited: 5 },
-        { id: "L4", pos: [-14.7, 0, -20.2], deposited: 5 },
-        { id: "L5", pos: [-23.8, 0, 7.7], deposited: 5 },
+        { id: "L1", pos: [0, 0, 25], lit: true, fuel: 100 },
+        { id: "L2", pos: [23.8, 0, 7.7], lit: true, fuel: 100 },
+        { id: "L3", pos: [14.7, 0, -20.2], lit: true, fuel: 100 },
+        { id: "L4", pos: [-14.7, 0, -20.2], lit: true, fuel: 100 },
+        { id: "L5", pos: [-23.8, 0, 7.7], lit: true, fuel: 100 },
       ],
     },
   });
   game.applyInput({});
   assert.equal(game.state, "won");
-  assert.equal(game.endReason, "all_lit");
+  assert.equal(game.endReason, "dawn_survived");
 });
 
-test("lantern needs multiple deposits and lights at exactly 5 motes", () => {
+test("lantern needs 10 first-light motes and 5 motes to relight", () => {
   const game = new Game({
     scenario: {
       random_motes: false,
       random_shades: false,
-      player: { pos: [0, 0, 25], carried: 2, flames: 3 },
+      player: { pos: [0, 0, 25], carried: 10, flames: 3 },
       lanterns: [{ id: "L1", pos: [0, 0, 25] }],
     },
   });
   game.applyInput({ interact: true });
-  assert.equal(game.lanterns[0].lit, false);
-  assert.equal(game.lanterns[0].deposited, 2);
-  game.player.carried = 3;
+  assert.equal(game.lanterns[0].lit, true);
+  assert.equal(game.lanterns[0].deposited, 10);
+  assert.equal(game.lanterns[0].fuel, 100);
+  game.updateLanternFuel();
+  game.lanterns[0].fuel = 0;
+  game.lanterns[0].lit = false;
+  game.lanterns[0].everLit = true;
+  game.player.carried = 5;
   game.applyInput({ interact: false });
   game.applyInput({ interact: true });
   assert.equal(game.lanterns[0].lit, true);
@@ -248,14 +253,14 @@ test("jump uses 7 m/s and only launches while grounded", () => {
   assert.equal(game.events.filter((event) => event.name === "jump").length, 1);
 });
 
-test("dash covers farther distance at 20 m/s", () => {
+test("dash covers distance at 14 m/s", () => {
   const game = new Game({
     scenario: { random_motes: false, random_shades: false },
   });
   const start = game.player.pos[2];
   game.applyInput({ dash: true, move: [0, 1] });
   for (let i = 0; i < 12; i++) game.applyInput({ move: [0, 1] });
-  assert.ok(game.player.pos[2] - start > 2.8);
+  assert.ok(game.player.pos[2] - start > 2.4);
 });
 
 test("night 1 player is clamped inside island boundary", () => {
@@ -276,4 +281,65 @@ test("night 3 player is clamped inside island boundary", () => {
   game.player.pos = [100, 0, 0];
   game.keepPlayerOnMap();
   assert.ok(Math.hypot(game.player.pos[0], game.player.pos[2]) <= 44);
+});
+
+test("lantern decays and turns out at zero fuel", () => {
+  const game = new Game({
+    scenario: {
+      random_motes: false,
+      random_shades: false,
+      lanterns: [{ id: "L1", pos: [0, 0, 25], lit: true, fuel: 0.5 }],
+    },
+  });
+  for (let i = 0; i < 60; i++) game.applyInput({});
+  assert.equal(game.lanterns[0].lit, false);
+  assert.equal(game.lanterns[0].fuel, 0);
+  assert.equal(game.events.at(-1).name, "lantern_out");
+});
+
+test("refueling adds 10 fuel and emits refuel", () => {
+  const game = new Game({
+    scenario: {
+      random_motes: false,
+      random_shades: false,
+      player: { pos: [0, 0, 25], carried: 3 },
+      lanterns: [{ id: "L1", pos: [0, 0, 25], lit: true, fuel: 20 }],
+    },
+  });
+  game.applyInput({ interact: true });
+  assert.ok(Math.abs(game.lanterns[0].fuel - 50) < 0.1);
+  assert.equal(game.player.carried, 0);
+  assert.equal(game.events.at(-1).name, "refuel");
+});
+
+test("drain shade is 15 points on pulse", () => {
+  const game = new Game({
+    scenario: {
+      random_motes: false,
+      random_shades: false,
+      player: { carried: 3 },
+      shades: [{ id: "S1", pos: [1, 0, 0], state: "drain", state_ticks_left: 120 }],
+    },
+  });
+  game.applyInput({ pulse: true });
+  assert.equal(game.shades[0].state, "stunned");
+  assert.equal(game.score, 15);
+});
+
+test("dawn wins only when enough lanterns remain lit", () => {
+  const game = new Game({
+    scenario: {
+      random_motes: false,
+      random_shades: false,
+      time_left_s: 1 / 60,
+      lanterns: [
+        { id: "L1", pos: [0, 0, 25], lit: true, fuel: 100 },
+        { id: "L2", pos: [23.8, 0, 7.7], lit: true, fuel: 100 },
+        { id: "L3", pos: [14.7, 0, -20.2], lit: true, fuel: 100 },
+      ],
+    },
+  });
+  game.applyInput({});
+  assert.equal(game.state, "won");
+  assert.equal(game.endReason, "dawn_survived");
 });

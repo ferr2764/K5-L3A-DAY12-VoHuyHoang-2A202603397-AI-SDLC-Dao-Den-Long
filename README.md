@@ -35,7 +35,7 @@ npm run headless -- --seed 123 --night 2 --ticks 19800 --out night2.jsonl
 npm run headless -- --seed 123 --night 3 --ticks 21600 --out night3.jsonl
 ```
 
-Tệp scenario và inputs tuân theo Test Contract v1.1. Snapshot bắt đầu ở tick 0; mặc định xuất snapshot mỗi 10 tick.
+Tệp scenario và inputs tuân theo Test Contract v1.2. Snapshot bắt đầu ở tick 0; mặc định xuất snapshot mỗi 10 tick.
 
 ## Cách tính điểm
 

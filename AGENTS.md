@@ -11,3 +11,5 @@
 - Contract 1.1: giữ 60 tick/s và đúng tuning chuẩn trong game.contract.json.
 - Khi thêm luật Đêm 2/3, tách map/headless khỏi Three.js.
 - Các event mới phải xuất hiện đúng tick và không phát khi dựng scenario.
+- Contract 1.2: đèn có fuel/everLit/relitCount; không thắng sớm khi hết đèn.
+- Snapshot và test phải dùng `dawn_survived`, không còn `all_lit`.

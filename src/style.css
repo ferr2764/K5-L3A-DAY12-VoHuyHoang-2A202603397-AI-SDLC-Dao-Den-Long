@@ -51,6 +51,14 @@ html, body {
   animation: blink 0.7s steps(2) infinite;
 }
 
+body.colorblind #hud #time.danger {
+  color: #ffffff;
+}
+
+body.colorblind #hud #time.danger::before {
+  content: "⚠ ";
+}
+
 #mote-bar {
   display: grid !important;
   grid-template-columns: repeat(10, 12px);
