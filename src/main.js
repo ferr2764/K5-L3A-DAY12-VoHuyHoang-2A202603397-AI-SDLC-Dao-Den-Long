@@ -77,12 +77,23 @@ function lanternMesh(lantern) {
   lamp.userData.lanternId = lantern.id;
   lamp.castShadow = true;
   group.add(lamp);
-  const light = new THREE.PointLight(0xffb34d, 0, 10);
+  const halo = new THREE.Mesh(
+    new THREE.SphereGeometry(0.9, 18, 12),
+    new THREE.MeshBasicMaterial({
+      color: 0xffe58a,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    }),
+  );
+  halo.position.y = 2.45;
+  group.add(halo);
+  const light = new THREE.PointLight(0xffb347, 0, 16);
   light.position.y = 2.45;
   group.add(light);
   group.position.set(lantern.pos[0], 0, lantern.pos[2]);
   scene.add(group);
-  return { group, lamp, light };
+  return { group, lamp, halo, light };
 }
 
 let lanternObjects = new Map();
@@ -107,9 +118,12 @@ function syncObjects() {
     if (!object) continue;
     object.group.position.set(lantern.pos[0], 0, lantern.pos[2]);
     const progress = Math.min(1, lantern.deposited / TUNING.lantern_cost);
-    object.lamp.material.color.set(lantern.lit ? 0xffca66 : 0x3d3156);
-    object.lamp.material.emissive.setHex(lantern.lit ? 0xff7b24 : 0x000000);
-    object.light.intensity = lantern.lit ? 5 : progress * 0.8;
+    object.lamp.material.color.set(lantern.lit ? 0xffb347 : 0x5b5f6e);
+    object.lamp.material.emissive.setHex(lantern.lit ? 0xffb347 : 0x000000);
+    object.lamp.material.emissiveIntensity = lantern.lit ? 3 : progress * 0.5;
+    object.halo.material.opacity = lantern.lit ? 0.35 : 0;
+    object.halo.scale.setScalar(lantern.lit ? 1.35 : 1);
+    object.light.intensity = lantern.lit ? 18 : progress * 1.2;
   }
 
   for (const [id, object] of moteObjects) {
@@ -169,6 +183,7 @@ let previousDash = false;
 let mouseGroundMove = null;
 let mouseInteract = false;
 let mousePulse = false;
+let buttonInteract = false;
 let gameStarted = false;
 
 const savedSettings = JSON.parse(localStorage.getItem("dao-den-long-settings") ?? '{"volume":50,"sensitivity":18}');
@@ -243,6 +258,12 @@ window.addEventListener("mouseup", (event) => {
 });
 
 canvas.addEventListener("contextmenu", (event) => event.preventDefault());
+
+const depositButton = document.querySelector("#deposit-button");
+depositButton.addEventListener("pointerdown", (event) => {
+  event.preventPropagation();
+  buttonInteract = true;
+});
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -378,7 +399,7 @@ function animate() {
     z = mouseMove[1];
   }
 
-  const interact = keys.has("KeyE") || mouseInteract;
+  const interact = keys.has("KeyE") || mouseInteract || buttonInteract;
   const pulse = keys.has("KeyQ") || mousePulse;
   const pause = keys.has("Escape") || keys.has("KeyP");
   const dash = keys.has("ShiftLeft") || keys.has("ShiftRight");
@@ -397,6 +418,7 @@ function animate() {
   previousPulse = pulse;
   previousPause = pause;
   previousDash = dash;
+  buttonInteract = false;
 
   playerMesh.position.set(
     game.player.pos[0],

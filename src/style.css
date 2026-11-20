@@ -84,6 +84,23 @@ html, body {
   text-shadow: 0 0 8px #ffb347;
 }
 
+#deposit-button {
+  margin-top: 4px;
+  min-height: 38px;
+  border: 1px solid #ffb347;
+  border-radius: 8px;
+  background: #6b4a2f;
+  color: #fff6c2;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+#deposit-button:active {
+  transform: translateY(1px);
+  background: #f2c14e;
+  color: #120a1a;
+}
+
 @keyframes blink { 50% { opacity: 0.35; } }
 
 #controls-guide {
