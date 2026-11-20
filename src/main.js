@@ -50,119 +50,131 @@ scene.add(islandTop);
 
 function createCharacter() {
   const group = new THREE.Group();
-  const skin = new THREE.MeshPhysicalMaterial({
-    color: 0xe6b98f,
-    roughness: 0.72,
-    sheen: 0.12,
-    clearcoat: 0.05,
-  });
-  const ao = new THREE.MeshStandardMaterial({
-    color: 0xe8e2d0,
-    roughness: 0.82,
-  });
-  const scarf = new THREE.MeshStandardMaterial({
-    color: 0xb91832,
-    roughness: 0.7,
-  });
-  const clothShadow = new THREE.MeshStandardMaterial({
-    color: 0xcfc6ad,
-    roughness: 0.88,
-  });
+  const skin = new THREE.MeshStandardMaterial({ color: 0xe7b98d, roughness: 0.72 });
+  const cloth = new THREE.MeshStandardMaterial({ color: 0xeee6d2, roughness: 0.86 });
+  const clothShade = new THREE.MeshStandardMaterial({ color: 0xcbbf9d, roughness: 0.9 });
+  const red = new THREE.MeshStandardMaterial({ color: 0xc8102e, roughness: 0.72 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x302018, roughness: 0.9 });
 
-  const legs = new THREE.Group();
-  for (const x of [-0.22, 0.22]) {
-    const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.42, 4, 8), ao);
-    leg.position.set(x, 0.35, 0);
-    leg.castShadow = true;
-    legs.add(leg);
-  }
-  group.add(legs);
-
-  const tunic = new THREE.Mesh(new THREE.CapsuleGeometry(0.48, 0.72, 6, 12), ao);
-  tunic.position.y = 1.05;
-  tunic.scale.set(1, 1, 0.72);
-  tunic.castShadow = true;
-  group.add(tunic);
-
+  const boots = new THREE.Group();
   for (const side of [-1, 1]) {
-    const sleeve = new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.14, 0.48, 5, 10),
-      clothShadow,
-    );
-    sleeve.position.set(side * 0.58, 1.08, 0);
-    sleeve.rotation.z = side * 0.12;
-    sleeve.castShadow = true;
-    group.add(sleeve);
-    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), skin);
-    hand.position.set(side * 0.66, 0.68, 0);
-    hand.castShadow = true;
-    group.add(hand);
+    const boot = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.36, 5, 8), dark);
+    boot.position.set(side * 0.23, 0.38, 0.04);
+    boot.rotation.z = side * 0.04;
+    boot.castShadow = true;
+    boots.add(boot);
   }
+  group.add(boots);
 
-  const sash = new THREE.Mesh(new THREE.TorusGeometry(0.47, 0.045, 6, 16), scarf);
-  sash.position.y = 0.75;
+  const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.58, 0.72, 10), cloth);
+  skirt.position.y = 0.72;
+  skirt.scale.z = 0.82;
+  skirt.castShadow = true;
+  group.add(skirt);
+
+  const sash = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.055, 8, 18), red);
+  sash.position.y = 1.08;
   sash.rotation.x = Math.PI / 2;
   sash.castShadow = true;
   group.add(sash);
 
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.18, 10), skin);
-  neck.position.y = 1.56;
+  const tunic = new THREE.Mesh(new THREE.CapsuleGeometry(0.44, 0.58, 7, 12), cloth);
+  tunic.position.y = 1.28;
+  tunic.scale.set(1.05, 1, 0.72);
+  tunic.castShadow = true;
+  group.add(tunic);
+
+  for (const side of [-1, 1]) {
+    const upperArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.42, 5, 8), clothShade);
+    upperArm.position.set(side * 0.58, 1.25, 0);
+    upperArm.rotation.z = side * 0.18;
+    upperArm.castShadow = true;
+    group.add(upperArm);
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 8), skin);
+    hand.position.set(side * 0.67, 0.94, 0.02);
+    hand.castShadow = true;
+    group.add(hand);
+  }
+
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 0.16, 10), skin);
+  neck.position.y = 1.72;
+  neck.castShadow = true;
   group.add(neck);
 
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 12), skin);
-  head.position.y = 1.82;
-  head.scale.set(0.92, 1.05, 0.88);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 18, 12), skin);
+  head.position.y = 2.02;
+  head.scale.set(0.9, 1.08, 0.88);
   head.castShadow = true;
   group.add(head);
 
-  const hair = new THREE.Mesh(
-    new THREE.SphereGeometry(0.355, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.48),
-    new THREE.MeshStandardMaterial({ color: 0x17110f, roughness: 0.95 }),
+  const hairBack = new THREE.Mesh(
+    new THREE.SphereGeometry(0.38, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.58),
+    dark,
   );
-  hair.position.y = 1.91;
-  hair.castShadow = true;
-  group.add(hair);
+  hairBack.position.y = 2.12;
+  hairBack.scale.z = 0.9;
+  hairBack.castShadow = true;
+  group.add(hairBack);
 
-  const hat = new THREE.Mesh(
-    new THREE.ConeGeometry(0.88, 0.32, 32),
-    new THREE.MeshStandardMaterial({ color: 0xd8bd72, roughness: 0.9 }),
-  );
-  hat.position.y = 2.22;
-  hat.rotation.y = Math.PI / 32;
-  hat.castShadow = true;
-  group.add(hat);
-  for (let i = 0; i < 3; i++) {
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(0.55 + i * 0.12, 0.018, 5, 24),
-      new THREE.MeshStandardMaterial({ color: 0x9a7a45, roughness: 1 }),
-    );
-    ring.position.y = 2.12 - i * 0.06;
-    ring.rotation.x = Math.PI / 2;
-    group.add(ring);
+  for (const side of [-1, 1]) {
+    const braid = new THREE.Mesh(new THREE.TorusKnotGeometry(0.07, 0.018, 24, 6), dark);
+    braid.position.set(side * 0.31, 1.72, 0);
+    braid.scale.set(0.55, 1.5, 0.55);
+    braid.castShadow = true;
+    group.add(braid);
   }
 
+  const brim = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.86, 0.86, 0.055, 32),
+    new THREE.MeshStandardMaterial({ color: 0xd8b95d, roughness: 0.78 }),
+  );
+  brim.position.y = 2.48;
+  brim.castShadow = true;
+  group.add(brim);
+
+  const hat = new THREE.Mesh(
+    new THREE.ConeGeometry(0.78, 0.82, 32),
+    new THREE.MeshStandardMaterial({ color: 0xe5c873, roughness: 0.82 }),
+  );
+  hat.position.y = 2.86;
+  hat.castShadow = true;
+  group.add(hat);
+
+  const hatBand = new THREE.Mesh(
+    new THREE.TorusGeometry(0.66, 0.035, 8, 32),
+    red,
+  );
+  hatBand.position.y = 2.47;
+  hatBand.rotation.x = Math.PI / 2;
+  group.add(hatBand);
+
+  const lanternGroup = new THREE.Group();
+  const chain = new THREE.Mesh(
+    new THREE.TorusGeometry(0.18, 0.018, 6, 20),
+    new THREE.MeshStandardMaterial({ color: 0x9a7a45, metalness: 0.35, roughness: 0.5 }),
+  );
+  chain.position.y = 0.34;
+  chain.rotation.x = Math.PI / 2;
+  lanternGroup.add(chain);
   const lantern = new THREE.Mesh(
-    new THREE.SphereGeometry(0.16, 12, 8),
+    new THREE.CylinderGeometry(0.16, 0.13, 0.34, 10),
     new THREE.MeshStandardMaterial({
       color: 0xffb347,
       emissive: 0xff7b24,
-      emissiveIntensity: 2,
+      emissiveIntensity: 3,
+      transparent: true,
+      opacity: 0.92,
     }),
   );
-  lantern.position.set(0.48, 1.55, 0.2);
+  lantern.position.y = 0.02;
   lantern.castShadow = true;
-  group.add(lantern);
-  const lanternLight = new THREE.PointLight(0xffb347, 3.5, 8);
+  lanternGroup.add(lantern);
+  const lanternLight = new THREE.PointLight(0xffb347, 4.2, 8);
   lanternLight.position.copy(lantern.position);
-  group.add(lanternLight);
-
-  const face = new THREE.Mesh(
-    new THREE.CapsuleGeometry(0.035, 0.08, 3, 6),
-    new THREE.MeshBasicMaterial({ color: 0x5b3b31 }),
-  );
-  face.position.set(0, 1.82, 0.34);
-  face.rotation.x = Math.PI / 2;
-  group.add(face);
+  lanternGroup.add(lanternLight);
+  lanternGroup.position.set(0.72, 1.38, 0.18);
+  lanternGroup.rotation.z = -0.12;
+  group.add(lanternGroup);
 
   return group;
 }
@@ -458,39 +470,46 @@ function syncObjects() {
       mesh = new THREE.Group();
       const ink = new THREE.MeshPhysicalMaterial({
         color: 0x120a1a,
-        emissive: 0x2c113d,
-        emissiveIntensity: 0.9,
-        roughness: 0.35,
-        metalness: 0.05,
-        clearcoat: 0.25,
-        clearcoatRoughness: 0.5,
+        emissive: 0x1b0a29,
+        emissiveIntensity: 1.15,
+        roughness: 0.48,
+        metalness: 0,
+        clearcoat: 0.08,
+        clearcoatRoughness: 0.82,
       });
-      const body = new THREE.Mesh(new THREE.SphereGeometry(0.72, 18, 12), ink);
-      body.scale.set(0.9, 1.25, 0.78);
-      body.position.y = 0.85;
+      const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.48, 0.72, 7, 10), ink);
+      body.scale.set(1.05, 1.05, 0.78);
+      body.position.y = 0.72;
       body.castShadow = true;
       mesh.add(body);
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.48, 14, 10), ink);
-      head.position.set(0, 1.72, 0);
-      head.scale.set(1, 0.78, 0.82);
+      const hood = new THREE.Mesh(new THREE.ConeGeometry(0.68, 1.05, 10, 1, true), ink);
+      hood.position.set(0, 1.48, 0);
+      hood.rotation.y = Math.PI / 10;
+      hood.scale.set(1.05, 1, 0.82);
+      hood.castShadow = true;
+      mesh.add(hood);
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.38, 12, 8), ink);
+      head.position.set(0, 1.18, 0.08);
+      head.scale.set(1.05, 0.72, 0.85);
       head.castShadow = true;
       mesh.add(head);
-      for (const side of [-1, 1]) {
-        const tendril = new THREE.Mesh(
-          new THREE.CapsuleGeometry(0.11, 0.65, 5, 8),
-          ink,
-        );
-        tendril.position.set(side * 0.55, 0.42, 0);
-        tendril.rotation.z = side * 0.7;
+      for (let i = 0; i < 5; i++) {
+        const side = i % 2 === 0 ? -1 : 1;
+        const curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(side * (0.22 + i * 0.04), 0.62, 0),
+          new THREE.Vector3(side * (0.5 + i * 0.02), 0.25, side * 0.12),
+          new THREE.Vector3(side * (0.68 - i * 0.03), -0.05, side * 0.2),
+        ]);
+        const tendril = new THREE.Mesh(new THREE.TubeGeometry(curve, 10, 0.055, 6, false), ink);
         tendril.castShadow = true;
         mesh.add(tendril);
       }
       const eyeMaterial = new THREE.MeshBasicMaterial({
-        color: 0x7a3cff,
+        color: colorblindMode ? 0x00b3ff : 0x7a3cff,
       });
       for (const side of [-1, 1]) {
-        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), eyeMaterial);
-        eye.position.set(side * 0.16, 1.74, 0.42);
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 6), eyeMaterial);
+        eye.position.set(side * 0.14, 1.23, 0.42);
         mesh.add(eye);
       }
       scene.add(mesh);
