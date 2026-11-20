@@ -512,7 +512,7 @@ export class Game {
       }
       if (shade.state === "chase" || shade.state === "recoil") {
         if (d > 0) {
-          const speed = this.night === 3 ? 4.5 : TUNING.shade_speed;
+          const speed = this.night === 3 ? 3.2 : TUNING.shade_speed;
           shade.pos[0] = round3(shade.pos[0] + dx / d * speed / 60);
           shade.pos[2] = round3(shade.pos[2] + dz / d * speed / 60);
         }

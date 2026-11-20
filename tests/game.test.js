@@ -14,7 +14,7 @@ test("picks a mote, deposits it, and lights a lantern", () => {
     scenario: {
       random_motes: false,
       random_shades: false,
-      player: { pos: [0, 0, 5], carried: 10, flames: 3 },
+      player: { pos: [0, 0, 5], carried: 5, flames: 3 },
       motes: [],
       shades: [],
       lanterns: [{ id: "L1", pos: [0, 0, 5] }],
@@ -24,8 +24,8 @@ test("picks a mote, deposits it, and lights a lantern", () => {
 
   game.applyInput({ interact: true });
   assert.equal(game.lanterns[0].lit, true);
-  assert.equal(game.lanterns[0].deposited, 10);
-  assert.equal(game.score, 200);
+  assert.equal(game.lanterns[0].deposited, 5);
+  assert.equal(game.score, 150);
   assert.deepEqual(
     game.events.map((event) => event.name),
     ["deposit", "lantern_lit"],
@@ -206,11 +206,11 @@ test("win on all lit even when final check happens at zero time", () => {
       random_shades: false,
       time_left_s: 0,
       lanterns: [
-        { id: "L1", pos: [0, 0, 25], deposited: 10 },
-        { id: "L2", pos: [23.8, 0, 7.7], deposited: 10 },
-        { id: "L3", pos: [14.7, 0, -20.2], deposited: 10 },
-        { id: "L4", pos: [-14.7, 0, -20.2], deposited: 10 },
-        { id: "L5", pos: [-23.8, 0, 7.7], deposited: 10 },
+        { id: "L1", pos: [0, 0, 25], deposited: 5 },
+        { id: "L2", pos: [23.8, 0, 7.7], deposited: 5 },
+        { id: "L3", pos: [14.7, 0, -20.2], deposited: 5 },
+        { id: "L4", pos: [-14.7, 0, -20.2], deposited: 5 },
+        { id: "L5", pos: [-23.8, 0, 7.7], deposited: 5 },
       ],
     },
   });
@@ -219,21 +219,21 @@ test("win on all lit even when final check happens at zero time", () => {
   assert.equal(game.endReason, "all_lit");
 });
 
-test("lantern needs multiple deposits and lights at exactly 10 motes", () => {
+test("lantern needs multiple deposits and lights at exactly 5 motes", () => {
   const game = new Game({
     scenario: {
       random_motes: false,
       random_shades: false,
-      player: { pos: [0, 0, 25], carried: 4, flames: 3 },
+      player: { pos: [0, 0, 25], carried: 2, flames: 3 },
       lanterns: [{ id: "L1", pos: [0, 0, 25] }],
     },
   });
   game.applyInput({ interact: true });
   assert.equal(game.lanterns[0].lit, false);
-  assert.equal(game.lanterns[0].deposited, 4);
-  game.player.carried = 6;
+  assert.equal(game.lanterns[0].deposited, 2);
+  game.player.carried = 3;
   game.applyInput({ interact: false });
   game.applyInput({ interact: true });
   assert.equal(game.lanterns[0].lit, true);
-  assert.equal(game.lanterns[0].deposited, 10);
+  assert.equal(game.lanterns[0].deposited, 5);
 });

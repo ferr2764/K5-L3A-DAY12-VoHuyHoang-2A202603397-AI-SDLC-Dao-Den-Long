@@ -9,8 +9,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x09051a);
-scene.fog = new THREE.FogExp2(0x09051a, 0.018);
+scene.background = new THREE.Color(0x1b2350);
+scene.fog = new THREE.FogExp2(0x1b2350, 0.008);
 
 const camera = new THREE.PerspectiveCamera(
   55,
@@ -19,14 +19,18 @@ const camera = new THREE.PerspectiveCamera(
   200,
 );
 
-const ambient = new THREE.HemisphereLight(0x9c8cff, 0x120821, 0.55);
+const ambient = new THREE.HemisphereLight(0xcdd3ff, 0x355a55, 1.15);
 scene.add(ambient);
+const sun = new THREE.DirectionalLight(0xfff2bd, 1.2);
+sun.position.set(-20, 35, 20);
+sun.castShadow = true;
+scene.add(sun);
 
 let currentNight = 1;
 let game = new Game({ night: currentNight });
 const island = new THREE.Mesh(
   new THREE.CylinderGeometry(40, 42, 1.2, 64),
-  new THREE.MeshStandardMaterial({ color: 0x29413b, roughness: 0.95 }),
+  new THREE.MeshStandardMaterial({ color: 0x3f7867, roughness: 0.95 }),
 );
 island.position.y = -0.6;
 island.receiveShadow = true;
@@ -34,7 +38,7 @@ scene.add(island);
 
 const islandTop = new THREE.Mesh(
   new THREE.CylinderGeometry(39.7, 39.7, 0.12, 64),
-  new THREE.MeshStandardMaterial({ color: 0x4e6b55, roughness: 1 }),
+  new THREE.MeshStandardMaterial({ color: 0x5d9772, roughness: 1 }),
 );
 islandTop.position.y = 0.02;
 islandTop.receiveShadow = true;
@@ -112,7 +116,7 @@ function rebuildObjects() {
 
 function syncObjects() {
   const litCount = game.lanterns.filter((lantern) => lantern.lit).length;
-  ambient.intensity = 0.15 + 0.55 * (litCount / Math.max(1, game.lanterns.length));
+  ambient.intensity = 0.55 + 0.55 * (litCount / Math.max(1, game.lanterns.length));
   for (const lantern of game.lanterns) {
     const object = lanternObjects.get(lantern.id);
     if (!object) continue;

@@ -1,7 +1,7 @@
 export const TUNING = {
   player_speed: 6.0,
   carry_capacity: 10,
-  lantern_cost: 10,
+  lantern_cost: 5,
   lantern_count_night1: 5,
   pickup_radius: 1.0,
   interact_radius: 2.0,
@@ -20,7 +20,7 @@ export const TUNING = {
   dash_duration_s: 0.2,
   dash_cooldown_s: 1.5,
   safe_radius: 6.0,
-  shade_speed: 4.0,
+  shade_speed: 3.0,
   shade_hit_radius: 1.0,
   fall_enabled: true,
   score: {

@@ -14,4 +14,4 @@
 - Bóng Mực đứng ngoài `safe_radius` của đèn trong trạng thái chase.
 - Thắt hẳn game khi thắp đủ 5 đèn, hết 3 flame hoặc hết thời gian đêm.
 - Không rơi khỏi đảo ở Phase 1; `fall_enabled: false`.
-- Điểm: 10/đom đóm nhặt, 500/đèn thắp, 50/Bóng Mực bị stun, 2/giây còn lại, 100/flame còn lại.
+- Điểm Phase 2: 10/đom đóm nạp, 100/đèn thắp, 5/Bóng Mực trúng pulse, 2/giây còn lại, 50/Ngọn Lửa còn lại.

@@ -33,15 +33,17 @@ npm run headless -- --seed 123 --night 2 --ticks 19800 --out night2.jsonl
 npm run headless -- --seed 123 --night 3 --ticks 21600 --out night3.jsonl
 ```
 
-Tệp scenario và inputs tuân theo Test Contract v1.0. Snapshot bắt đầu ở tick 0; mặc định xuất snapshot mỗi 10 tick.
+Tệp scenario và inputs tuân theo Test Contract v1.1. Snapshot bắt đầu ở tick 0; mặc định xuất snapshot mỗi 10 tick.
 
 ## Cách tính điểm
 
 - Nhặt mỗi đom đóm: 10 điểm.
-- Thắp mỗi đèn: 500 điểm.
-- Stun mỗi Bóng Mực: 50 điểm.
+- Thắp mỗi đèn: 100 điểm.
+- Tấn công trúng mỗi Bóng Mực bằng Tỏa Sáng: 5 điểm.
 - Khi thắng, mỗi giây còn lại: 2 điểm.
-- Khi thắng, mỗi flame còn lại: 100 điểm.
+- Khi thắng, mỗi Ngọn Lửa còn lại: 50 điểm.
+- Thắp đèn cần 5 đom đóm.
+- Bóng Mực Đêm 1/2 đi 3 m/s; Đêm 3 đi 3.2 m/s.
 
 ## Giả định mơ hồ
 

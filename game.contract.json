@@ -7,7 +7,7 @@
   "tuning": {
     "player_speed": 6.0,
     "carry_capacity": 10,
-    "lantern_cost": 10,
+    "lantern_cost": 5,
     "lantern_count_night1": 5,
     "pickup_radius": 1.0,
     "interact_radius": 2.0,
@@ -26,7 +26,7 @@
     "night2_duration_s": 330,
     "night3_duration_s": 360,
     "safe_radius": 6.0,
-    "shade_speed": 4.0,
+    "shade_speed": 3.0,
     "shade_hit_radius": 1.0,
     "fall_enabled": true,
     "score": { "per_mote": 10, "per_lantern": 100, "per_stun": 5,
