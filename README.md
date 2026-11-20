@@ -58,7 +58,7 @@ npm run soak -- --seed 7 --nights 10 --out soak.json
 npm run leaderboard -- --export-leaderboard out.json
 ```
 
-Bench web thực được yêu cầu chạy tại cửa sổ 1280×720; script hiện tại được dùng làm benchmark headless có output contract 1.3 trên máy không GPU. Peak RSS web là `null`.
+Bench thật mở Chrome 1280×720 bằng Puppeteer và đo rAF 30 giây. Kết quả máy cục bộ được lưu trong `bench.json`; benchmark do máy giảng viên quyết định có đạt ngưỡng hay không. Peak RSS web là `null`.
 
 ## Cách tính điểm
 
