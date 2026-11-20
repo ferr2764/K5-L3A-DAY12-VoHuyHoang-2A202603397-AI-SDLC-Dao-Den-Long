@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đảo Đèn Lồng</title>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+    <div id="hud">
+      <div><strong>Ngọn Lửa</strong> <span id="flames">3</span></div>
+      <div><strong>Đèn</strong> <span id="lanterns">0/5</span></div>
+      <div><strong>Điểm</strong> <span id="score">0</span></div>
+      <div><strong id="time">05:00</strong></div>
+      <div id="mote-bar" aria-label="Thanh đom đóm"></div>
+      <div id="cooldowns"><span id="dash-cd">Lướt sẵn sàng</span><span id="pulse-cd">Tỏa sáng sẵn sàng</span></div>
+      <div id="lantern-hint" hidden></div>
+    </div>
+    <aside id="controls-guide" aria-label="Hướng dẫn điều khiển">
+      <strong>Điều khiển</strong>
+      <div><span>Di chuyển</span><b>W A S D</b></div>
+      <div><span>Quay camera</span><b>Chuột / ← →</b></div>
+      <div><span>Đi theo chuột</span><b>Giữ chuột trái</b></div>
+      <div><span>Nạp đom đóm</span><b>E / Chuột phải</b></div>
+      <div><span>Tỏa sáng</span><b>Q / Chuột trái</b></div>
+      <small>Chuột trái nhấn để Q, giữ để đi; chuột phải để E.</small>
+    </aside>
+    <div id="overlay" hidden>
+      <h1 id="overlay-title"></h1>
+      <p id="overlay-score"></p>
+      <button id="restart">Chơi lại</button>
+      <button id="overlay-settings" hidden>Cài đặt</button>
+      <button id="overlay-menu" hidden>Về menu</button>
+    </div>
+    <div id="main-menu" class="menu-screen">
+      <h1>Đảo Đèn Lồng</h1>
+      <p>Bản đồ 3 Đêm</p>
+      <button id="start-game">Bắt đầu</button>
+      <button id="open-settings">Cài đặt</button>
+    </div>
+    <div id="settings-menu" class="menu-screen" hidden>
+      <h2>Cài đặt</h2>
+      <label>Âm lượng <input id="volume" type="range" min="0" max="100" value="50"></label>
+      <label>Độ nhạy chuột <input id="sensitivity" type="range" min="5" max="30" value="18"></label>
+      <button id="close-settings">Lưu và đóng</button>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,5 +1,60 @@
 # Day 12 — AI SDLC: Đảo Đèn Lồng
 
+## Chạy dự án
+
+Chỉ dùng tối đa 3 lệnh:
+
+```bash
+npm install
+npm run dev -- --host 0.0.0.0
+npm run build
+```
+
+Lệnh mở ứng dụng là `npm run dev -- --host 0.0.0.0`.
+
+## Điều khiển
+
+- `W`, `A`, `S`, `D`: di chuyển.
+- `←`, `→`: quay camera.
+- Chuột: di chuyển chuột để quay camera sau khi click vào game.
+- Chuột trái giữ: di chuyển Mây theo điểm ở chính giữa màn hình.
+- Chuột trái nhấn hoặc `Q`: tỏa sáng/xua Bóng Mực.
+- Chuột phải hoặc `E`: nạp đom đóm vào đèn gần.
+
+Tầm nhìn camera là góc nhìn thứ ba. Mây nhặt đom đóm tự động trong bán kính contract.
+
+## Chế độ headless
+
+```bash
+npm test
+npm run headless -- --seed 123 --night 1 --ticks 600 --out proof.jsonl
+npm run headless -- --seed 123 --night 1 --scenario scenario.json --inputs inputs.json --ticks 600 --out proof.jsonl
+npm run headless -- --seed 123 --night 2 --ticks 19800 --out night2.jsonl
+npm run headless -- --seed 123 --night 3 --ticks 21600 --out night3.jsonl
+```
+
+Tệp scenario và inputs tuân theo Test Contract v1.0. Snapshot bắt đầu ở tick 0; mặc định xuất snapshot mỗi 10 tick.
+
+## Cách tính điểm
+
+- Nhặt mỗi đom đóm: 10 điểm.
+- Thắp mỗi đèn: 500 điểm.
+- Stun mỗi Bóng Mực: 50 điểm.
+- Khi thắng, mỗi giây còn lại: 2 điểm.
+- Khi thắng, mỗi flame còn lại: 100 điểm.
+
+## Giả định mơ hồ
+
+Xem [giả định Phase 1](docs/notes/assumptions.md). Hòn đảo bán kính 22 mét, túi chứa 5 đom đóm, đèn cần 3 đom đóm, Mây có 3 flame. Không bật rơi khỏi đảo.
+
+## Sáng tạo của tôi
+
+- Hiệu ứng đèn sáng dần theo số đom đóm đã nạp.
+- Hiệu ứng sương tím cho Bóng Mực và giao diện ấm màu vàng cam.
+- Có màn thắng/thua và nút chơi lại.
+
+Bằng chứng phần cũ còn đúng: bộ unit test nằm trong `tests/game.test.js`; kiểm tra headless JSONL và so sánh determinism được lưu trong `docs/proof/phase-1.md`.
+
 > **Cá nhân** (1 người / 1 MSSV) · Áp dụng SDLC cùng AI để xây một **game 3D** qua **4 phase**, từ yêu cầu ban đầu tới bản phát hành.
 > **Lab board + trợ giảng:** **[Đảo Đèn Lồng Lab](https://claude.ai/artifact/Q1RYyv1dxjUczzCbd2ZnoW)**
 
