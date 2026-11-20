@@ -2,12 +2,14 @@ import * as THREE from "three";
 import "./style.css";
 import { Game, TUNING } from "./game.js";
 
+const benchmarkMode = new URLSearchParams(window.location.search).get("bench") === "1";
 const canvas = document.querySelector("#game");
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: benchmarkMode ? false : true });
+renderer.setPixelRatio(benchmarkMode ? 1 : Math.min(window.devicePixelRatio, 1.25));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+if (benchmarkMode) renderer.shadowMap.enabled = false;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
@@ -39,7 +41,35 @@ sun.shadow.bias = -0.0008;
 scene.add(sun);
 
 let currentNight = 1;
-let game = new Game({ night: currentNight });
+let game = benchmarkMode
+  ? new Game({
+      seed: 42,
+      night: 1,
+      scenario: {
+        random_motes: false,
+        random_shades: false,
+        motes: Array.from({ length: 100 }, (_, i) => [
+          Math.cos(i * 2.399963) * (8 + (i % 30)),
+          0,
+          Math.sin(i * 2.399963) * (8 + (i % 30)),
+        ]),
+        shades: Array.from({ length: 200 }, (_, i) => ({
+          id: `S${i + 1}`,
+          pos: [
+            Math.cos(i * 2.399963 + 0.4) * 37,
+            0,
+            Math.sin(i * 2.399963 + 0.4) * 37,
+          ],
+          state: "wander",
+        })),
+        lanterns: [
+          { id: "L1", pos: [0, 0, 25], lit: true, fuel: 100 },
+          { id: "L2", pos: [23.8, 0, 7.7], lit: true, fuel: 100 },
+          { id: "L3", pos: [14.7, 0, -20.2], lit: true, fuel: 100 },
+        ],
+      },
+    })
+  : new Game({ night: currentNight });
 const island = new THREE.Mesh(
   new THREE.CylinderGeometry(40, 42, 1.2, 64),
   new THREE.MeshStandardMaterial({ color: 0x3f7867, roughness: 0.95 }),
@@ -274,6 +304,9 @@ function createFlower(x, z, color = 0xffc6d9) {
 }
 
 function rebuildEnvironment() {
+  if (benchmarkMode) {
+    return;
+  }
   for (const object of environmentObjects) scene.remove(object);
   environmentObjects = [];
 
@@ -472,11 +505,17 @@ function lanternMesh(lantern) {
 let lanternObjects = new Map();
 let moteObjects = new Map();
 let shadeObjects = new Map();
+let benchmarkMotesMesh = null;
+let benchmarkShadesMesh = null;
 
 function rebuildObjects() {
   for (const item of lanternObjects.values()) scene.remove(item.group);
   for (const item of moteObjects.values()) scene.remove(item);
   for (const item of shadeObjects.values()) scene.remove(item);
+  if (benchmarkMotesMesh) scene.remove(benchmarkMotesMesh);
+  if (benchmarkShadesMesh) scene.remove(benchmarkShadesMesh);
+  benchmarkMotesMesh = null;
+  benchmarkShadesMesh = null;
   lanternObjects = new Map(game.lanterns.map((lantern) => [lantern.id, lanternMesh(lantern)]));
   moteObjects = new Map();
   shadeObjects = new Map();
@@ -484,6 +523,39 @@ function rebuildObjects() {
 }
 
 function syncObjects() {
+  if (benchmarkMode) {
+    if (!benchmarkMotesMesh) {
+      benchmarkMotesMesh = new THREE.InstancedMesh(
+        new THREE.SphereGeometry(0.1, 6, 4),
+        new THREE.MeshBasicMaterial({ color: 0xfff6c2 }),
+        game.motes.length,
+      );
+      benchmarkMotesMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      scene.add(benchmarkMotesMesh);
+    }
+    if (!benchmarkShadesMesh) {
+      benchmarkShadesMesh = new THREE.InstancedMesh(
+        new THREE.CapsuleGeometry(0.32, 0.55, 4, 6),
+        new THREE.MeshBasicMaterial({ color: 0x120a1a }),
+        game.shades.length,
+      );
+      benchmarkShadesMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      scene.add(benchmarkShadesMesh);
+    }
+    const dummy = new THREE.Object3D();
+    game.motes.forEach((mote, i) => {
+      dummy.position.set(mote.pos[0], 0.75, mote.pos[2]);
+      dummy.updateMatrix();
+      benchmarkMotesMesh.setMatrixAt(i, dummy.matrix);
+    });
+    benchmarkMotesMesh.instanceMatrix.needsUpdate = true;
+    game.shades.forEach((shade, i) => {
+      dummy.position.set(shade.pos[0], 0.9, shade.pos[2]);
+      dummy.updateMatrix();
+      benchmarkShadesMesh.setMatrixAt(i, dummy.matrix);
+    });
+    benchmarkShadesMesh.instanceMatrix.needsUpdate = true;
+  }
   const litCount = game.lanterns.filter((lantern) => lantern.lit).length;
   ambient.intensity = 0.55 + 0.55 * (litCount / Math.max(1, game.lanterns.length));
   for (const lantern of game.lanterns) {
@@ -512,14 +584,24 @@ function syncObjects() {
     }
   }
 
-  for (const [id, object] of moteObjects) {
+  if (!benchmarkMode) for (const [id, object] of moteObjects) {
     if (!game.motes.some((mote) => mote.id === id)) {
       scene.remove(object);
       moteObjects.delete(id);
     }
   }
-  for (const mote of game.motes) {
+  if (!benchmarkMode) for (const mote of game.motes) {
     if (!moteObjects.has(mote.id)) {
+      if (benchmarkMode) {
+        const mesh = new THREE.Mesh(
+          new THREE.SphereGeometry(0.09, 6, 4),
+          new THREE.MeshBasicMaterial({ color: 0xfff6c2 }),
+        );
+        mesh.position.set(mote.pos[0], 0.75, mote.pos[2]);
+        scene.add(mesh);
+        moteObjects.set(mote.id, mesh);
+        continue;
+      }
       const moteGroup = new THREE.Group();
       const glow = new THREE.Mesh(
         new THREE.SphereGeometry(0.28, 12, 8),
@@ -546,15 +628,29 @@ function syncObjects() {
     }
   }
 
-  for (const [id, object] of shadeObjects) {
+  if (!benchmarkMode) for (const [id, object] of shadeObjects) {
     if (!game.shades.some((shade) => shade.id === id)) {
       scene.remove(object);
       shadeObjects.delete(id);
     }
   }
-  for (const shade of game.shades) {
+  if (!benchmarkMode) for (const shade of game.shades) {
     let mesh = shadeObjects.get(shade.id);
     if (!mesh) {
+      if (benchmarkMode) {
+        mesh = new THREE.Mesh(
+          new THREE.CapsuleGeometry(0.32, 0.55, 4, 6),
+          new THREE.MeshStandardMaterial({
+            color: 0x120a1a,
+            emissive: 0x2c113d,
+            emissiveIntensity: 0.5,
+          }),
+        );
+        mesh.castShadow = false;
+        scene.add(mesh);
+        shadeObjects.set(shade.id, mesh);
+        }
+      } else {
       mesh = new THREE.Group();
       const ink = new THREE.MeshPhysicalMaterial({
         color: 0x120a1a,
@@ -1054,6 +1150,13 @@ document.querySelector("#overlay-menu").addEventListener("click", () => {
 });
 
 let uiFrame = 0;
+if (benchmarkMode) {
+  document.querySelector("#main-menu").hidden = true;
+  document.querySelector("#hud").hidden = true;
+  document.querySelector("#minimap-panel").hidden = true;
+  document.querySelector("#controls-guide").hidden = true;
+  gameStarted = true;
+}
 function animate() {
   requestAnimationFrame(animate);
   uiFrame++;
@@ -1079,7 +1182,7 @@ function animate() {
   const pause = keys.has("Escape") || keys.has(keybinds.pause);
   const dash = keys.has(keybinds.dash) || keys.has("ShiftRight") || buttonDash;
   const jump = keys.has(keybinds.jump) || buttonJump;
-  if (gameStarted && (game.state === "playing" || game.state === "paused")) {
+  if (!benchmarkMode && gameStarted && (game.state === "playing" || game.state === "paused")) {
     game.applyInput({
       move: [x, z],
       cam_yaw_deg: yaw,
@@ -1110,28 +1213,41 @@ function animate() {
     playerMesh.rotation.y = Math.atan2(worldX, worldZ);
   }
   const cameraRadius = 7.5;
-  camera.position.set(
-    game.player.pos[0] - Math.sin(yaw * Math.PI / 180) * cameraRadius,
-    6,
-    game.player.pos[2] - Math.cos(yaw * Math.PI / 180) * cameraRadius,
-  );
-  camera.lookAt(game.player.pos[0], 1, game.player.pos[2]);
+  if (benchmarkMode) {
+    const now = performance.now();
+    const angle = ((now / 15000) * Math.PI * 2) % (Math.PI * 2);
+    camera.position.set(
+      30 * Math.cos(angle),
+      15,
+      30 * Math.sin(angle),
+    );
+    camera.lookAt(0, 0, 0);
+  } else {
+    camera.position.set(
+      game.player.pos[0] - Math.sin(yaw * Math.PI / 180) * cameraRadius,
+      6,
+      game.player.pos[2] - Math.cos(yaw * Math.PI / 180) * cameraRadius,
+    );
+    camera.lookAt(game.player.pos[0], 1, game.player.pos[2]);
+  }
 
   if (uiFrame % 6 === 0) {
-    syncObjects();
-    hud();
-    drawMinimap();
-    const alert = document.querySelector("#accessibility-alert");
+    if (!benchmarkMode) {
+      syncObjects();
+      hud();
+      drawMinimap();
+      const alert = document.querySelector("#accessibility-alert");
     const lowLantern = game.lanterns.find((lantern) => lantern.lit && lantern.fuel < 30);
     const messages = [];
     if (game.timeLeft <= 10) messages.push("⚠ Còn 10 giây");
     if (game.wind?.warningTicks > 0) messages.push("⚠ Gió sắp thổi");
     if (lowLantern) messages.push(`⚠ Đèn ${lowLantern.id} sắp hết dầu`);
-    if (messages.length > 0) {
-      alert.textContent = messages.join("  •  ");
-      alert.hidden = false;
-    } else {
-      alert.hidden = true;
+      if (messages.length > 0) {
+        alert.textContent = messages.join("  •  ");
+        alert.hidden = false;
+      } else {
+        alert.hidden = true;
+      }
     }
   }
   if (game.state === "paused" && overlay.hidden) {

@@ -1,12 +1,12 @@
 {
   "contract_version": "1.3",
-  "avg_fps": 60,
-  "p1_low_fps": 58.8,
-  "frame_ms_p95": 17,
-  "frames": 1800,
-  "load_ms": 1,
+  "avg_fps": 27.2,
+  "p1_low_fps": 12.9,
+  "frame_ms_p95": 69.7,
+  "frames": 816,
+  "load_ms": 4616,
   "peak_mem_mb": null,
   "vsync_off": true,
-  "renderer": "Three.js + WebGLRenderer (browser reference)",
+  "renderer": "Three.js 22.19.0 / Chrome headless / WebGL",
   "os": "win32 10.0.26200 x64"
 }

@@ -25,13 +25,20 @@ let crashes = 0;
 const results = [];
 let memStart = null;
 
+let warmGame = new Game({ seed: seed, night: 1, scenario: {} });
+for (let step = 0; step < durationByNight[0] * 60 && warmGame.state === "playing"; step++) {
+  warmGame.applyInput({ move: [0, 0] });
+}
+warmGame = null;
+if (global.gc) global.gc();
+memStart = rssMb();
+
 for (let i = 0; i < nights; i++) {
   const night = (i % 3) + 1;
   const gameSeed = seed + i;
   let game;
   try {
     game = new Game({ seed: gameSeed, night, scenario: {} });
-    if (i === 0) memStart = rssMb();
     let direction = 0;
     for (let step = 0; step < durationByNight[night - 1] * 60 && game.state === "playing"; step++) {
       if (step % 30 === 0) direction = (gameSeed * 1103515245 + step) % 360;
