@@ -4,7 +4,7 @@ import { Game, TUNING } from "./game.js";
 
 const canvas = document.querySelector("#game");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -28,6 +28,14 @@ scene.add(ambient);
 const sun = new THREE.DirectionalLight(0xfff2bd, 1.2);
 sun.position.set(-20, 35, 20);
 sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+sun.shadow.camera.left = -45;
+sun.shadow.camera.right = 45;
+sun.shadow.camera.top = 45;
+sun.shadow.camera.bottom = -45;
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 100;
+sun.shadow.bias = -0.0008;
 scene.add(sun);
 
 let currentNight = 1;
@@ -237,7 +245,7 @@ function createGrass(x, z, scale = 1) {
     const blade = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.75, 5), material);
     blade.position.set((i - 2) * 0.12, 0.38, (i % 2) * 0.08);
     blade.rotation.z = (i - 2) * 0.12;
-    blade.castShadow = true;
+    blade.castShadow = false;
     grass.add(blade);
   }
   grass.position.set(x, 0.05, z);
@@ -532,8 +540,6 @@ function syncObjects() {
         spark.position.set(Math.cos(angle) * 0.12, i * 0.05, Math.sin(angle) * 0.12);
         moteGroup.add(spark);
       }
-      const moteLight = new THREE.PointLight(0xffd98a, 1.1, 3);
-      moteGroup.add(moteLight);
       moteGroup.position.set(mote.pos[0], 0.75, mote.pos[2]);
       scene.add(moteGroup);
       moteObjects.set(mote.id, moteGroup);
@@ -750,6 +756,14 @@ function getMouseMoveInput() {
   return [dx * cos - dz * sin, dx * sin + dz * cos];
 }
 
+const moteBar = document.querySelector("#mote-bar");
+const moteSlots = Array.from({ length: 20 }, () => {
+  const slot = document.createElement("span");
+  slot.className = "mote-slot";
+  moteBar.appendChild(slot);
+  return slot;
+});
+
 function hud() {
   document.querySelector("#flames").textContent = game.player.flames;
   document.querySelector("#lanterns").textContent =
@@ -763,14 +777,12 @@ function hud() {
   time.classList.toggle("danger", totalSeconds <= 30);
 
   const bar = document.querySelector("#mote-bar");
-  bar.innerHTML = "";
   bar.setAttribute("title", `${game.player.carried}/${game.player.capacity} đom đóm`);
   bar.setAttribute("aria-label", `${game.player.carried}/${game.player.capacity} đom đóm`);
-  for (let i = 0; i < game.player.capacity; i++) {
-    const slot = document.createElement("span");
-    slot.className = `mote-slot${i < game.player.carried ? " filled" : ""}`;
-    bar.appendChild(slot);
-  }
+  moteSlots.forEach((slot, i) => {
+    slot.hidden = i >= game.player.capacity;
+    slot.classList.toggle("filled", i < game.player.carried);
+  });
   document.querySelector("#dash-cd").textContent =
     game.player.dashCdTicks > 0
       ? `Lướt: ${(game.player.dashCdTicks / 60).toFixed(1)}s`
@@ -913,8 +925,10 @@ document.querySelector("#overlay-menu").addEventListener("click", () => {
   rebuildEnvironment();
 });
 
+let uiFrame = 0;
 function animate() {
   requestAnimationFrame(animate);
+  uiFrame++;
   let x = 0;
   let z = 0;
 
@@ -975,9 +989,11 @@ function animate() {
   );
   camera.lookAt(game.player.pos[0], 1, game.player.pos[2]);
 
-  syncObjects();
-  hud();
-  drawMinimap();
+  if (uiFrame % 6 === 0) {
+    syncObjects();
+    hud();
+    drawMinimap();
+  }
   if (game.state === "paused" && overlay.hidden) {
     document.querySelector("#overlay-title").textContent = "Tạm dừng";
     document.querySelector("#overlay-score").textContent =
