@@ -1,5 +1,15 @@
 # Changelog
 
+## Phase 1 — Đảo Bến
+
+- Game Three.js cơ bản, 5 đèn, đom đóm, Bóng Mực và HUD.
+- Thêm headless, Contract 1.0 và test determinism.
+
+## Phase 2 — Ba hòn đảo
+
+- Contract 1.1, chuẩn hóa tuning và bản đồ 3 Đêm.
+- Thêm jump, dash, Gió Lạc, Bùa Gió, pause và HUD mở rộng.
+
 ## Phase 4 — Bình minh và phát hành
 
 - Contract nâng lên `1.3`.

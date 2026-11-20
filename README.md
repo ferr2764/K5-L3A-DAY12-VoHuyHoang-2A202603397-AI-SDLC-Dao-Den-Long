@@ -1,5 +1,11 @@
 # Day 12 — AI SDLC: Đảo Đèn Lồng
 
+**Bản phát hành:** [GitHub Release v1.0.0](https://github.com/ferr2764/K5-L3A-DAY12-VoHuyHoang-2A202603397-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0)
+
+Video demo: chưa đính kèm; clip `.mp4` cần được thêm trước nộp cuối.
+
+Ảnh chụp màn hình: xem [bằng chứng Phase 1–4](docs/proof/).
+
 ## Chạy dự án
 
 Chỉ dùng tối đa 3 lệnh:
@@ -11,6 +17,13 @@ npm run build
 ```
 
 Lệnh mở ứng dụng là `npm run dev -- --host 0.0.0.0`.
+
+## Yêu cầu hệ thống
+
+- Node.js 22 trở lên và npm.
+- Trình duyệt desktop hỗ trợ WebGL2 (Chrome/Edge/Firefox bản mới).
+- Màn hình khuyến nghị `1280×720`.
+- Không cần GPU chuyên dụng để chạy headless.
 
 ## Điều khiển
 
@@ -31,11 +44,11 @@ Tầm nhìn camera là góc nhìn thứ ba. Mây nhặt đom đóm tự động 
 npm test
 npm run headless -- --seed 123 --night 1 --ticks 600 --out proof.jsonl
 npm run headless -- --seed 123 --night 1 --scenario scenario.json --inputs inputs.json --ticks 600 --out proof.jsonl
-npm run headless -- --seed 123 --night 2 --ticks 19800 --out night2.jsonl
+npm run headless -- --seed 123 --night 2 --ticks 16200 --out night2.jsonl
 npm run headless -- --seed 123 --night 3 --ticks 21600 --out night3.jsonl
 ```
 
-Tệp scenario và inputs tuân theo Test Contract v1.2. Snapshot bắt đầu ở tick 0; mặc định xuất snapshot mỗi 10 tick.
+Tệp scenario và inputs tuân theo Test Contract v1.3. Snapshot bắt đầu ở tick 0; mặc định xuất snapshot mỗi 10 tick.
 
 ## Benchmark và soak
 
@@ -49,17 +62,18 @@ Bench web thực được yêu cầu chạy tại cửa sổ 1280×720; script h
 
 ## Cách tính điểm
 
-- Nhặt mỗi đom đóm: 10 điểm.
+- Nạp mỗi đom đóm vào đèn: 5 điểm.
 - Thắp mỗi đèn: 100 điểm.
-- Tấn công trúng mỗi Bóng Mực bằng Tỏa Sáng: 5 điểm.
-- Khi thắng, mỗi giây còn lại: 2 điểm.
+- Tấn công trúng mỗi Bóng Mực bằng Tỏa Sáng: 5 điểm; trúng lúc đang `drain`: 15 điểm.
+- Thắp lại đèn: 40 điểm.
+- Khi thắng: mỗi đèn sáng +50 cộng fuel làm tròn xuống.
 - Khi thắng, mỗi Ngọn Lửa còn lại: 50 điểm.
-- Thắp đèn cần 5 đom đóm.
-- Bóng Mực Đêm 1/2 đi 3 m/s; Đêm 3 đi 3.2 m/s.
+- Đèn lần đầu cần 10 đom đóm; thắp lại cần 5 đom đóm.
+- Bóng Mực Đêm 1/2 đi 4 m/s; Đêm 3 đi 4.5 m/s.
 
 ## Giả định mơ hồ
 
-Xem [giả định Phase 1](docs/notes/assumptions.md). Hòn đảo bán kính 22 mét, túi chứa 5 đom đóm, đèn cần 3 đom đóm, Mây có 3 flame. Không bật rơi khỏi đảo.
+Xem [giả định Phase 1](docs/notes/assumptions.md). Phase 4 dùng bản đồ chuẩn Contract 1.3: túi chứa tối đa 10 đom đóm ban đầu, tăng theo đèn thắp thành công, đèn lần đầu cần 10 đom đóm và Mây có 3 Ngọn Lửa.
 
 ## Sáng tạo của tôi
 
