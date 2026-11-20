@@ -24,9 +24,10 @@ html, body {
   gap: 6px;
   min-width: 190px;
   padding: 12px 14px;
-  border: 1px solid rgba(255, 203, 102, 0.35);
+  border: 1px solid rgba(255, 203, 102, 0.85);
   border-radius: 10px;
-  background: rgba(16, 8, 35, 0.82);
+  background: rgba(16, 8, 35, 0.94);
+  box-shadow: 0 0 18px rgba(255, 179, 71, 0.16);
   backdrop-filter: blur(6px);
 }
 
@@ -99,6 +100,18 @@ html, body {
   transform: translateY(1px);
   background: #f2c14e;
   color: #120a1a;
+}
+
+#minimap {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 220px;
+  height: 220px;
+  border: 2px solid rgba(255, 203, 102, 0.85);
+  border-radius: 50%;
+  background: rgba(14, 20, 48, 0.94);
+  box-shadow: 0 0 18px rgba(255, 179, 71, 0.22);
 }
 
 @keyframes blink { 50% { opacity: 0.35; } }

@@ -14,6 +14,7 @@
 - Cài đặt âm lượng và độ nhạy chuột được lưu bằng `localStorage`.
 - HUD luôn hiển thị đèn chưa sáng gần nhất, khoảng cách, tiến độ `x/10` và hướng bấm tương tác.
 - Test nạp nhiều lần kiểm tra đèn chỉ sáng khi tiến độ đạt đúng 10 đom đóm.
+- HUD được tăng độ tương phản và có minimap với đèn, đom đóm, bóng mực và Mây.
 
 ## Câu lệnh kiểm chứng
 

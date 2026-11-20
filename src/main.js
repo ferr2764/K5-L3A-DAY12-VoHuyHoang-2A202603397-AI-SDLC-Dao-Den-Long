@@ -349,6 +349,67 @@ function hud() {
   }
 }
 
+function drawMinimap() {
+  const canvas = document.querySelector("#minimap");
+  const ctx = canvas.getContext("2d");
+  const size = canvas.width;
+  const center = size / 2;
+  const radius = 96;
+  ctx.clearRect(0, 0, size, size);
+  ctx.fillStyle = "#0E1430";
+  ctx.beginPath();
+  ctx.arc(center, center, radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#F2C14E";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  const mapRadius = game.map.radius;
+  const scale = radius / Math.max(mapRadius, 1);
+  const project = (pos) => [
+    center + pos[0] * scale,
+    center + pos[2] * scale,
+  ];
+
+  for (const lantern of game.lanterns) {
+    const [x, y] = project(lantern.pos);
+    ctx.fillStyle = lantern.lit ? "#FFB347" : "#5B5F6E";
+    ctx.beginPath();
+    ctx.arc(x, y, lantern.lit ? 7 : 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#FFF6C2";
+  for (const mote of game.motes) {
+    const [x, y] = project(mote.pos);
+    ctx.beginPath();
+    ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#7A3CFF";
+  for (const shade of game.shades) {
+    const [x, y] = project(shade.pos);
+    ctx.beginPath();
+    ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#8FA3B8";
+  for (const drifter of game.drifters) {
+    if (drifter.state === "removed") continue;
+    const [x, y] = project(drifter.pos);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const [playerX, playerY] = project(game.player.pos);
+  ctx.fillStyle = "#E8E2D0";
+  ctx.beginPath();
+  ctx.moveTo(playerX, playerY - 8);
+  ctx.lineTo(playerX - 6, playerY + 7);
+  ctx.lineTo(playerX + 6, playerY + 7);
+  ctx.closePath();
+  ctx.fill();
+}
+
 const overlay = document.querySelector("#overlay");
 document.querySelector("#restart").addEventListener("click", () => {
   if (game.state === "paused") {
@@ -435,6 +496,7 @@ function animate() {
 
   syncObjects();
   hud();
+  drawMinimap();
   if (game.state === "paused" && overlay.hidden) {
     document.querySelector("#overlay-title").textContent = "Tạm dừng";
     document.querySelector("#overlay-score").textContent =
