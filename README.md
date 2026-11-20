@@ -37,6 +37,16 @@ npm run headless -- --seed 123 --night 3 --ticks 21600 --out night3.jsonl
 
 Tệp scenario và inputs tuân theo Test Contract v1.2. Snapshot bắt đầu ở tick 0; mặc định xuất snapshot mỗi 10 tick.
 
+## Benchmark và soak
+
+```bash
+npm run bench -- --seed 42 --duration 30 --out bench.json
+npm run soak -- --seed 7 --nights 10 --out soak.json
+npm run leaderboard -- --export-leaderboard out.json
+```
+
+Bench web thực được yêu cầu chạy tại cửa sổ 1280×720; script hiện tại được dùng làm benchmark headless có output contract 1.3 trên máy không GPU. Peak RSS web là `null`.
+
 ## Cách tính điểm
 
 - Nhặt mỗi đom đóm: 10 điểm.

@@ -25,6 +25,7 @@
       <strong>BẢN ĐỒ</strong>
       <canvas id="minimap" width="240" height="240" aria-label="Bản đồ nhỏ"></canvas>
     </div>
+    <div id="accessibility-alert" role="status" aria-live="polite" hidden></div>
     <aside id="controls-guide" aria-label="Hướng dẫn điều khiển">
       <strong>Điều khiển</strong>
       <div><span>Di chuyển</span><b>W A S D</b></div>
@@ -61,13 +62,23 @@
       </div>
       <button id="start-game">Chơi bản đồ đã chọn</button>
       <button id="open-settings">Cài đặt</button>
+      <button id="open-leaderboard">Bảng xếp hạng</button>
     </div>
     <div id="settings-menu" class="menu-screen" hidden>
       <h2>Cài đặt</h2>
       <label>Âm lượng <input id="volume" type="range" min="0" max="100" value="50"></label>
       <label>Độ nhạy chuột <input id="sensitivity" type="range" min="5" max="30" value="18"></label>
       <label><input id="colorblind-mode" type="checkbox"> Bảng màu dễ phân biệt</label>
+      <label>Giảm chuyển động <input id="reduce-motion" type="checkbox"></label>
+      <label>Chữ lớn <input id="large-text" type="checkbox"></label>
+      <div id="keybind-list"></div>
+      <button id="restore-keybinds" type="button">Khôi phục mặc định</button>
       <button id="close-settings">Lưu và đóng</button>
+    </div>
+    <div id="leaderboard-menu" class="menu-screen" hidden>
+      <h2>Bảng xếp hạng</h2>
+      <ol id="leaderboard-list"></ol>
+      <button id="close-leaderboard">Đóng</button>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

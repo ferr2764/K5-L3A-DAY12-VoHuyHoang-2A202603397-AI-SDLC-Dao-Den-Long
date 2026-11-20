@@ -1,13 +1,16 @@
 {
   "name": "dao-den-long",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "test": "node --test",
-    "headless": "node headless.js"
+    "headless": "node headless.js",
+    "bench": "node bench.js",
+    "soak": "node --expose-gc soak.js",
+    "leaderboard": "node leaderboard.js"
   },
   "dependencies": {
     "three": "^0.180.0"

@@ -1,5 +1,13 @@
 # Changelog
 
+## Phase 4 — Bình minh và phát hành
+
+- Contract nâng lên `1.3`.
+- Thêm benchmark và soak CLI.
+- Thêm leaderboard local top 10 và export JSON.
+- Thêm đổi phím, giảm chuyển động, chữ lớn và chỉ báo hình ảnh.
+- Bản phát hành: `v1.0.0`.
+
 ## Phase 3 — Đèn cạn dầu
 
 ### Breaking changes
