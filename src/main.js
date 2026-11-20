@@ -44,25 +44,266 @@ islandTop.position.y = 0.02;
 islandTop.receiveShadow = true;
 scene.add(islandTop);
 
-const playerMesh = new THREE.Group();
-const body = new THREE.Mesh(
-  new THREE.CapsuleGeometry(0.45, 0.8, 5, 12),
-  new THREE.MeshStandardMaterial({ color: 0xf2b66d }),
-);
-body.position.y = 0.9;
-body.castShadow = true;
-playerMesh.add(body);
-const hat = new THREE.Mesh(
-  new THREE.ConeGeometry(0.85, 0.35, 24),
-  new THREE.MeshStandardMaterial({ color: 0xe8c96a }),
-);
-hat.position.y = 1.85;
-hat.castShadow = true;
-playerMesh.add(hat);
-const miniLantern = new THREE.PointLight(0xffbe55, 2.2, 7);
-miniLantern.position.set(0, 1.2, 0.5);
-playerMesh.add(miniLantern);
+function createCharacter() {
+  const group = new THREE.Group();
+  const skin = new THREE.MeshStandardMaterial({ color: 0xf0c79b, roughness: 0.8 });
+  const ao = new THREE.MeshStandardMaterial({ color: 0xe8e2d0, roughness: 0.9 });
+  const scarf = new THREE.MeshStandardMaterial({ color: 0xc8102e, roughness: 0.85 });
+
+  const legs = new THREE.Group();
+  for (const x of [-0.22, 0.22]) {
+    const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.42, 4, 8), ao);
+    leg.position.set(x, 0.35, 0);
+    leg.castShadow = true;
+    legs.add(leg);
+  }
+  group.add(legs);
+
+  const tunic = new THREE.Mesh(new THREE.CapsuleGeometry(0.48, 0.72, 6, 12), ao);
+  tunic.position.y = 1.05;
+  tunic.scale.set(1, 1, 0.72);
+  tunic.castShadow = true;
+  group.add(tunic);
+
+  const sash = new THREE.Mesh(new THREE.TorusGeometry(0.47, 0.045, 6, 16), scarf);
+  sash.position.y = 0.75;
+  sash.rotation.x = Math.PI / 2;
+  sash.castShadow = true;
+  group.add(sash);
+
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.18, 10), skin);
+  neck.position.y = 1.56;
+  group.add(neck);
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 12), skin);
+  head.position.y = 1.82;
+  head.scale.set(0.92, 1.05, 0.88);
+  head.castShadow = true;
+  group.add(head);
+
+  const hair = new THREE.Mesh(
+    new THREE.SphereGeometry(0.355, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.48),
+    new THREE.MeshStandardMaterial({ color: 0x241a18, roughness: 1 }),
+  );
+  hair.position.y = 1.91;
+  hair.castShadow = true;
+  group.add(hair);
+
+  const hat = new THREE.Mesh(
+    new THREE.ConeGeometry(0.88, 0.32, 32),
+    new THREE.MeshStandardMaterial({ color: 0xd8bd72, roughness: 0.9 }),
+  );
+  hat.position.y = 2.22;
+  hat.rotation.y = Math.PI / 32;
+  hat.castShadow = true;
+  group.add(hat);
+  for (let i = 0; i < 3; i++) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.55 + i * 0.12, 0.018, 5, 24),
+      new THREE.MeshStandardMaterial({ color: 0x9a7a45, roughness: 1 }),
+    );
+    ring.position.y = 2.12 - i * 0.06;
+    ring.rotation.x = Math.PI / 2;
+    group.add(ring);
+  }
+
+  const lantern = new THREE.Mesh(
+    new THREE.SphereGeometry(0.16, 12, 8),
+    new THREE.MeshStandardMaterial({
+      color: 0xffb347,
+      emissive: 0xff7b24,
+      emissiveIntensity: 2,
+    }),
+  );
+  lantern.position.set(0.48, 1.55, 0.2);
+  lantern.castShadow = true;
+  group.add(lantern);
+  const lanternLight = new THREE.PointLight(0xffb347, 3.5, 8);
+  lanternLight.position.copy(lantern.position);
+  group.add(lanternLight);
+
+  const face = new THREE.Mesh(
+    new THREE.CapsuleGeometry(0.035, 0.08, 3, 6),
+    new THREE.MeshBasicMaterial({ color: 0x5b3b31 }),
+  );
+  face.position.set(0, 1.82, 0.34);
+  face.rotation.x = Math.PI / 2;
+  group.add(face);
+
+  return group;
+}
+
+const playerMesh = createCharacter();
 scene.add(playerMesh);
+
+let environmentObjects = [];
+
+function createTree(x, z, scale = 1) {
+  const group = new THREE.Group();
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.25, 0.38, 2.4, 8),
+    new THREE.MeshStandardMaterial({ color: 0x6b4a2f, roughness: 1 }),
+  );
+  trunk.position.y = 1.2;
+  trunk.castShadow = true;
+  group.add(trunk);
+  for (let i = 0; i < 3; i++) {
+    const crown = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.05 - i * 0.12, 1),
+      new THREE.MeshStandardMaterial({
+        color: i === 1 ? 0x49765a : 0x2f5d50,
+        roughness: 1,
+        flatShading: true,
+      }),
+    );
+    crown.position.set((i - 1) * 0.38, 2.35 + i * 0.3, (i % 2) * 0.18);
+    crown.scale.set(1.15, 0.9, 1.15);
+    crown.castShadow = true;
+    group.add(crown);
+  }
+  group.position.set(x, 0, z);
+  group.scale.setScalar(scale);
+  scene.add(group);
+  environmentObjects.push(group);
+}
+
+function createRock(x, z, scale = 1) {
+  const rock = new THREE.Mesh(
+    new THREE.DodecahedronGeometry(0.72, 0),
+    new THREE.MeshStandardMaterial({ color: 0x68706f, roughness: 1, flatShading: true }),
+  );
+  rock.position.set(x, 0.45 * scale, z);
+  rock.scale.set(1.2, 0.65 * scale, 0.9);
+  rock.rotation.set(0.12, x * 0.1, -0.08);
+  rock.castShadow = true;
+  scene.add(rock);
+  environmentObjects.push(rock);
+}
+
+function createGrass(x, z, scale = 1) {
+  const grass = new THREE.Group();
+  const material = new THREE.MeshStandardMaterial({
+    color: 0x78a66b,
+    side: THREE.DoubleSide,
+    roughness: 1,
+  });
+  for (let i = 0; i < 5; i++) {
+    const blade = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.75, 5), material);
+    blade.position.set((i - 2) * 0.12, 0.38, (i % 2) * 0.08);
+    blade.rotation.z = (i - 2) * 0.12;
+    blade.castShadow = true;
+    grass.add(blade);
+  }
+  grass.position.set(x, 0.05, z);
+  grass.scale.setScalar(scale);
+  scene.add(grass);
+  environmentObjects.push(grass);
+}
+
+function createFlower(x, z, color = 0xffc6d9) {
+  const group = new THREE.Group();
+  const stem = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.025, 0.025, 0.5, 6),
+    new THREE.MeshStandardMaterial({ color: 0x4f7e55 }),
+  );
+  stem.position.y = 0.25;
+  group.add(stem);
+  const bloom = new THREE.Mesh(
+    new THREE.SphereGeometry(0.12, 8, 6),
+    new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.18 }),
+  );
+  bloom.position.y = 0.56;
+  group.add(bloom);
+  group.position.set(x, 0.05, z);
+  scene.add(group);
+  environmentObjects.push(group);
+}
+
+function rebuildEnvironment() {
+  for (const object of environmentObjects) scene.remove(object);
+  environmentObjects = [];
+
+  if (currentNight === 1) {
+    const trees = [
+      [-29, 18, 1.1], [30, 15, 1], [-31, -5, 1.25], [27, -25, 1.15],
+      [-22, -29, 0.9], [5, 31, 1.05], [-8, -34, 1.1], [34, 2, 0.95],
+    ];
+    trees.forEach(([x, z, s]) => createTree(x, z, s));
+  } else if (currentNight === 2) {
+    const islandB = new THREE.Mesh(
+      new THREE.CylinderGeometry(28, 30, 1.2, 48),
+      new THREE.MeshStandardMaterial({ color: 0x3f7867, roughness: 0.95 }),
+    );
+    islandB.position.set(70, -0.6, 0);
+    islandB.receiveShadow = true;
+    scene.add(islandB);
+    environmentObjects.push(islandB);
+    const islandBTop = new THREE.Mesh(
+      new THREE.CylinderGeometry(27.7, 27.7, 0.12, 48),
+      new THREE.MeshStandardMaterial({ color: 0x5d9772, roughness: 1 }),
+    );
+    islandBTop.position.set(70, 0.02, 0);
+    islandBTop.receiveShadow = true;
+    scene.add(islandBTop);
+    environmentObjects.push(islandBTop);
+    const bridge = new THREE.Mesh(
+      new THREE.BoxGeometry(18, 0.18, 4),
+      new THREE.MeshStandardMaterial({ color: 0x9a7448, roughness: 1 }),
+    );
+    bridge.position.set(35, 0.08, 0);
+    bridge.castShadow = true;
+    scene.add(bridge);
+    environmentObjects.push(bridge);
+    for (let x = 28; x <= 42; x += 2) {
+      const plank = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.28, 4.1),
+        new THREE.MeshStandardMaterial({ color: 0x6b4a2f }),
+      );
+      plank.position.set(x, 0.2, 0);
+      scene.add(plank);
+      environmentObjects.push(plank);
+    }
+    [[-20, 18, 1], [18, -20, 1], [52, 18, 1], [88, -18, 1]].forEach(([x, z, s]) => createTree(x, z, s));
+  } else {
+    const tier1 = new THREE.Mesh(
+      new THREE.RingGeometry(12, 24, 48, 1, 0, Math.PI),
+      new THREE.MeshStandardMaterial({ color: 0x667c58, roughness: 1, side: THREE.DoubleSide }),
+    );
+    tier1.position.set(0, 3.05, 0);
+    tier1.rotation.x = -Math.PI / 2;
+    scene.add(tier1);
+    environmentObjects.push(tier1);
+    const tier2 = new THREE.Mesh(
+      new THREE.CylinderGeometry(8, 8, 0.12, 32),
+      new THREE.MeshStandardMaterial({ color: 0x73905f, roughness: 1 }),
+    );
+    tier2.position.set(0, 6.05, 0);
+    tier2.receiveShadow = true;
+    scene.add(tier2);
+    environmentObjects.push(tier2);
+  }
+
+  for (let i = 0; i < 46; i++) {
+    const angle = i * 2.399;
+    const radius = 8 + (i * 11 % 29);
+    const cx = currentNight === 2 ? (i % 2 ? 70 : 0) : 0;
+    createGrass(cx + Math.cos(angle) * radius, Math.sin(angle) * radius, 0.7 + (i % 4) * 0.12);
+  }
+  for (let i = 0; i < 10; i++) {
+    const angle = i * 0.9;
+    const radius = 10 + (i % 3) * 8;
+    const cx = currentNight === 2 ? (i % 2 ? 70 : 0) : 0;
+    createRock(cx + Math.cos(angle) * radius, Math.sin(angle) * radius, 0.7 + (i % 3) * 0.2);
+  }
+  for (let i = 0; i < 18; i++) {
+    const angle = i * 1.7;
+    const radius = 6 + (i % 5) * 5;
+    const cx = currentNight === 2 ? (i % 2 ? 70 : 0) : 0;
+    createFlower(cx + Math.cos(angle) * radius, Math.sin(angle) * radius, i % 3 === 0 ? 0xffc6d9 : 0xffe58a);
+  }
+}
+
+rebuildEnvironment();
 
 function lanternMesh(lantern) {
   const group = new THREE.Group();
@@ -157,20 +398,53 @@ function syncObjects() {
   for (const shade of game.shades) {
     let mesh = shadeObjects.get(shade.id);
     if (!mesh) {
-      mesh = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.55, 0.7, 5, 12),
-        new THREE.MeshStandardMaterial({
-          color: 0x180725,
-          emissive: 0x26083c,
-          emissiveIntensity: 0.5,
-        }),
-      );
-      mesh.castShadow = true;
+      mesh = new THREE.Group();
+      const ink = new THREE.MeshStandardMaterial({
+        color: 0x120a1a,
+        emissive: 0x2c113d,
+        emissiveIntensity: 0.9,
+        roughness: 0.35,
+        metalness: 0.1,
+      });
+      const body = new THREE.Mesh(new THREE.SphereGeometry(0.72, 18, 12), ink);
+      body.scale.set(0.9, 1.25, 0.78);
+      body.position.y = 0.85;
+      body.castShadow = true;
+      mesh.add(body);
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.48, 14, 10), ink);
+      head.position.set(0, 1.72, 0);
+      head.scale.set(1, 0.78, 0.82);
+      head.castShadow = true;
+      mesh.add(head);
+      for (const side of [-1, 1]) {
+        const tendril = new THREE.Mesh(
+          new THREE.CapsuleGeometry(0.11, 0.65, 5, 8),
+          ink,
+        );
+        tendril.position.set(side * 0.55, 0.42, 0);
+        tendril.rotation.z = side * 0.7;
+        tendril.castShadow = true;
+        mesh.add(tendril);
+      }
+      const eyeMaterial = new THREE.MeshBasicMaterial({
+        color: 0x7a3cff,
+      });
+      for (const side of [-1, 1]) {
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), eyeMaterial);
+        eye.position.set(side * 0.16, 1.74, 0.42);
+        mesh.add(eye);
+      }
       scene.add(mesh);
       shadeObjects.set(shade.id, mesh);
     }
     mesh.position.set(shade.pos[0], 0.9, shade.pos[2]);
-    mesh.visible = shade.state !== "stunned";
+    mesh.visible = true;
+    mesh.traverse((child) => {
+      if (child.material?.emissive) {
+        child.material.emissive.setHex(shade.state === "stunned" ? 0x3a3450 : 0x2c113d);
+        child.material.emissiveIntensity = shade.state === "stunned" ? 1.8 : 0.9;
+      }
+    });
   }
 }
 
@@ -228,6 +502,7 @@ document.querySelector("#start-game").addEventListener("click", () => {
   currentNight = 1;
   game = new Game({ night: 1 });
   rebuildObjects();
+  rebuildEnvironment();
   document.querySelector("#main-menu").hidden = true;
   if (audioContext.state === "suspended") audioContext.resume();
   playTone(660, 0.12);
@@ -431,6 +706,7 @@ document.querySelector("#restart").addEventListener("click", () => {
   overlay.hidden = true;
   document.querySelector("#restart").textContent = "Chơi lại";
   rebuildObjects();
+  rebuildEnvironment();
 });
 
 document.querySelector("#overlay-settings").addEventListener("click", () => {
@@ -443,6 +719,7 @@ document.querySelector("#overlay-menu").addEventListener("click", () => {
   overlay.hidden = true;
   document.querySelector("#main-menu").hidden = false;
   rebuildObjects();
+  rebuildEnvironment();
 });
 
 function animate() {
@@ -490,6 +767,12 @@ function animate() {
     0,
     game.player.pos[2],
   );
+  if (Math.hypot(x, z) > 0.05) {
+    const theta = ((yaw * Math.PI) / 180);
+    const worldX = x * Math.cos(theta) + z * Math.sin(theta);
+    const worldZ = -x * Math.sin(theta) + z * Math.cos(theta);
+    playerMesh.rotation.y = Math.atan2(worldX, worldZ);
+  }
   const cameraRadius = 7.5;
   camera.position.set(
     game.player.pos[0] - Math.sin(yaw * Math.PI / 180) * cameraRadius,
