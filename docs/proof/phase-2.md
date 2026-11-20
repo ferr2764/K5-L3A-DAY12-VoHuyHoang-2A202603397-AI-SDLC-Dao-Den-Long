@@ -16,6 +16,7 @@
 - Test nạp nhiều lần kiểm tra đèn chỉ sáng khi tiến độ đạt đúng 5 đom đóm.
 - Test jump kiểm tra nâng Y bằng vận tốc 7 m/s và chỉ nhảy khi chạm đất.
 - Test dash kiểm tra lướt 20 m/s trong 0.2 giây, xa hơn nhịp lướt cũ.
+- Test ranh giới Đêm 1 và Đêm 3 kiểm tra Mây không thể đi ra ngoài bán kính map.
 - HUD được tăng độ tương phản và có minimap với đèn, đom đóm, bóng mực và Mây.
 
 ## Câu lệnh kiểm chứng

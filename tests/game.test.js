@@ -257,3 +257,23 @@ test("dash covers farther distance at 20 m/s", () => {
   for (let i = 0; i < 12; i++) game.applyInput({ move: [0, 1] });
   assert.ok(game.player.pos[2] - start > 2.8);
 });
+
+test("night 1 player is clamped inside island boundary", () => {
+  const game = new Game({
+    night: 1,
+    scenario: { random_motes: false, random_shades: false },
+  });
+  game.player.pos = [100, 0, 100];
+  game.keepPlayerOnMap();
+  assert.ok(Math.hypot(game.player.pos[0], game.player.pos[2]) <= 39);
+});
+
+test("night 3 player is clamped inside island boundary", () => {
+  const game = new Game({
+    night: 3,
+    scenario: { random_motes: false, random_shades: false },
+  });
+  game.player.pos = [100, 0, 0];
+  game.keepPlayerOnMap();
+  assert.ok(Math.hypot(game.player.pos[0], game.player.pos[2]) <= 44);
+});

@@ -366,6 +366,7 @@ export class Game {
     }
 
     this.player.pos = this.player.pos.map((n, i) => i === 1 ? round3(n) : round3(n));
+    this.keepPlayerOnMap();
     if (TUNING.fall_enabled && this.player.pos[1] < -10 && !this.player.fallUsed) {
       this.player.fallUsed = true;
       this.player.flames--;
@@ -410,6 +411,48 @@ export class Game {
         this.player.charmTicks = 600;
         this.emit("charm_picked", { charm_id: charm.id, charm_ticks: 600 });
       }
+    }
+  }
+
+  keepPlayerOnMap() {
+    const x = this.player.pos[0];
+    const z = this.player.pos[2];
+
+    if (this.night === 1) {
+      const radius = 39;
+      const d = Math.hypot(x, z);
+      if (d > radius) {
+        const scale = radius / d;
+        this.player.pos[0] = round3(x * scale);
+        this.player.pos[2] = round3(z * scale);
+      }
+      return;
+    }
+
+    if (this.night === 2) {
+      const inIslandA = Math.hypot(x, z) <= 27;
+      const inIslandB = Math.hypot(x - 70, z) <= 27;
+      const onBridge = x >= 26 && x <= 44 && z >= -2 && z <= 2;
+      if (!inIslandA && !inIslandB && !onBridge) {
+        const nearestIslandX = x < 35 ? 0 : 70;
+        const dx = x - nearestIslandX;
+        const dz = z;
+        const d = Math.hypot(dx, dz);
+        if (d > 0) {
+          const radius = 27;
+          this.player.pos[0] = round3(nearestIslandX + dx / d * radius);
+          this.player.pos[2] = round3(dz / d * radius);
+        }
+      }
+      return;
+    }
+
+    const radius = 44;
+    const d = Math.hypot(x, z);
+    if (d > radius) {
+      const scale = radius / d;
+      this.player.pos[0] = round3(x * scale);
+      this.player.pos[2] = round3(z * scale);
     }
   }
 
