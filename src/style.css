@@ -18,16 +18,18 @@ html, body {
 
 #hud {
   position: fixed;
+  z-index: 40;
   top: 16px;
   left: 16px;
   display: grid;
   gap: 6px;
   min-width: 190px;
   padding: 12px 14px;
-  border: 1px solid rgba(255, 203, 102, 0.85);
+  border: 2px solid #ffe58a;
   border-radius: 10px;
-  background: rgba(16, 8, 35, 0.94);
-  box-shadow: 0 0 18px rgba(255, 179, 71, 0.16);
+  background: rgba(27, 35, 80, 0.98);
+  color: #ffffff;
+  box-shadow: 0 0 24px rgba(255, 230, 138, 0.38);
   backdrop-filter: blur(6px);
 }
 
@@ -94,6 +96,8 @@ html, body {
   color: #fff6c2;
   font-weight: 800;
   cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 0 12px rgba(255, 179, 71, 0.5);
 }
 
 #deposit-button:active {
@@ -102,22 +106,42 @@ html, body {
   color: #120a1a;
 }
 
-#minimap {
+#minimap-panel {
   position: fixed;
+  z-index: 35;
   top: 16px;
   right: 16px;
-  width: 220px;
-  height: 220px;
-  border: 2px solid rgba(255, 203, 102, 0.85);
+  width: 260px;
+  padding: 8px;
+  border: 2px solid #ffe58a;
+  border-radius: 16px;
+  background: rgba(14, 20, 48, 0.98);
+  box-shadow: 0 0 24px rgba(255, 230, 138, 0.38);
+  text-align: center;
+  color: #fff6c2;
+}
+
+#minimap-panel strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+#minimap {
+  display: block;
+  width: 240px;
+  height: 240px;
+  border: 2px solid #f2c14e;
   border-radius: 50%;
-  background: rgba(14, 20, 48, 0.94);
-  box-shadow: 0 0 18px rgba(255, 179, 71, 0.22);
+  background: #0e1430;
 }
 
 @keyframes blink { 50% { opacity: 0.35; } }
 
 #controls-guide {
   position: fixed;
+  z-index: 30;
   right: 16px;
   bottom: 16px;
   width: 260px;
