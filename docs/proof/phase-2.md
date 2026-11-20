@@ -14,6 +14,8 @@
 - Cài đặt âm lượng và độ nhạy chuột được lưu bằng `localStorage`.
 - HUD luôn hiển thị đèn chưa sáng gần nhất, khoảng cách, tiến độ `x/10` và hướng bấm tương tác.
 - Test nạp nhiều lần kiểm tra đèn chỉ sáng khi tiến độ đạt đúng 5 đom đóm.
+- Test jump kiểm tra nâng Y bằng vận tốc 7 m/s và chỉ nhảy khi chạm đất.
+- Test dash kiểm tra lướt 20 m/s trong 0.2 giây, xa hơn nhịp lướt cũ.
 - HUD được tăng độ tương phản và có minimap với đèn, đom đóm, bóng mực và Mây.
 
 ## Câu lệnh kiểm chứng

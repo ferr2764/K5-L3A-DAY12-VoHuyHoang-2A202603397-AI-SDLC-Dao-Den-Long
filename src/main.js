@@ -462,6 +462,8 @@ let mouseGroundMove = null;
 let mouseInteract = false;
 let mousePulse = false;
 let buttonInteract = false;
+let buttonJump = false;
+let buttonDash = false;
 let gameStarted = false;
 
 const savedSettings = JSON.parse(localStorage.getItem("dao-den-long-settings") ?? '{"volume":50,"sensitivity":18}');
@@ -542,6 +544,15 @@ const depositButton = document.querySelector("#deposit-button");
 depositButton.addEventListener("pointerdown", (event) => {
   event.preventPropagation();
   buttonInteract = true;
+});
+
+document.querySelector("#jump-button").addEventListener("pointerdown", (event) => {
+  event.preventPropagation();
+  buttonJump = true;
+});
+document.querySelector("#dash-button").addEventListener("pointerdown", (event) => {
+  event.preventPropagation();
+  buttonDash = true;
 });
 
 const raycaster = new THREE.Raycaster();
@@ -744,7 +755,8 @@ function animate() {
   const interact = keys.has("KeyE") || mouseInteract || buttonInteract;
   const pulse = keys.has("KeyQ") || mousePulse;
   const pause = keys.has("Escape") || keys.has("KeyP");
-  const dash = keys.has("ShiftLeft") || keys.has("ShiftRight");
+  const dash = keys.has("ShiftLeft") || keys.has("ShiftRight") || buttonDash;
+  const jump = keys.has("Space") || buttonJump;
   if (gameStarted && (game.state === "playing" || game.state === "paused")) {
     game.applyInput({
       move: [x, z],
@@ -752,7 +764,7 @@ function animate() {
       interact: interact && !previousInteract,
       pulse: pulse && !previousPulse,
       dash: dash && !previousDash,
-      jump: keys.has("Space"),
+      jump: jump,
       pause: pause && !previousPause,
     });
   }
@@ -761,10 +773,12 @@ function animate() {
   previousPause = pause;
   previousDash = dash;
   buttonInteract = false;
+  buttonJump = false;
+  buttonDash = false;
 
   playerMesh.position.set(
     game.player.pos[0],
-    0,
+    game.player.pos[1],
     game.player.pos[2],
   );
   if (Math.hypot(x, z) > 0.05) {

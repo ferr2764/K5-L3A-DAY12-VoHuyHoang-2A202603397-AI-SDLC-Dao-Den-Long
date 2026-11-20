@@ -16,7 +16,7 @@ export const TUNING = {
   pulse_stun_s: 2.0,
   pulse_push_m: 4.0,
   pulse_cooldown_s: 3.0,
-  dash_speed: 14.0,
+  dash_speed: 20.0,
   dash_duration_s: 0.2,
   dash_cooldown_s: 1.5,
   safe_radius: 6.0,

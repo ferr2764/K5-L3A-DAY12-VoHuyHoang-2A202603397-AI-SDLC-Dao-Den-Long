@@ -20,6 +20,8 @@ Lệnh mở ứng dụng là `npm run dev -- --host 0.0.0.0`.
 - Chuột trái giữ: di chuyển Mây theo điểm ở chính giữa màn hình.
 - Chuột trái nhấn hoặc `Q`: tỏa sáng/xua Bóng Mực.
 - Chuột phải hoặc `E`: nạp đom đóm vào đèn gần.
+- `Space` hoặc nút `Nhảy`: nhảy với vận tốc 7 m/s.
+- `Shift` hoặc nút `Lướt`: lướt theo hướng di chuyển, 20 m/s trong 0.2 giây.
 
 Tầm nhìn camera là góc nhìn thứ ba. Mây nhặt đom đóm tự động trong bán kính contract.
 

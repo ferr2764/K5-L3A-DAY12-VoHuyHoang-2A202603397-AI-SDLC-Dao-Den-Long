@@ -237,3 +237,23 @@ test("lantern needs multiple deposits and lights at exactly 5 motes", () => {
   assert.equal(game.lanterns[0].lit, true);
   assert.equal(game.lanterns[0].deposited, 5);
 });
+
+test("jump uses 7 m/s and only launches while grounded", () => {
+  const game = new Game({
+    scenario: { random_motes: false, random_shades: false },
+  });
+  game.applyInput({ jump: true });
+  assert.equal(game.player.grounded, false);
+  assert.equal(game.player.vel[1], 7 - 20 / 60);
+  assert.equal(game.events.filter((event) => event.name === "jump").length, 1);
+});
+
+test("dash covers farther distance at 20 m/s", () => {
+  const game = new Game({
+    scenario: { random_motes: false, random_shades: false },
+  });
+  const start = game.player.pos[2];
+  game.applyInput({ dash: true, move: [0, 1] });
+  for (let i = 0; i < 12; i++) game.applyInput({ move: [0, 1] });
+  assert.ok(game.player.pos[2] - start > 2.8);
+});
